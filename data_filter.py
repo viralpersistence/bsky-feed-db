@@ -6,7 +6,13 @@ from atproto import models
 
 import config
 from logger import logger
-from database import db, Post
+import sqlalchemy
+#from database import conn#db, Post
+from database import session, Post
+
+# Open the connection to SQLite Cloud
+#conn = sqlitecloud.connect(config.SQLITE_CONN_STRING)
+#db = conn.cursor()
 
 
 def is_archive_post(record: 'models.AppBskyFeedPost.Record') -> bool:
@@ -91,7 +97,7 @@ def operations_callback(ops: defaultdict) -> None:
             }
             posts_to_create.append(post_dict)
 
-            logger.debug(
+            logger.info(
                 f'NEW POST '
                 f'[CREATED_AT={record.created_at}]'
                 f'[AUTHOR={author}]'
@@ -103,11 +109,45 @@ def operations_callback(ops: defaultdict) -> None:
     posts_to_delete = ops[models.ids.AppBskyFeedPost]['deleted']
     if posts_to_delete:
         post_uris_to_delete = [post['uri'] for post in posts_to_delete]
-        Post.delete().where(Post.uri.in_(post_uris_to_delete))
+        #query = Post.delete().where(Post.uri.in_(post_uris_to_delete))
+        #sql, param = query.sql()
+        #print(sql.replace("?","{}").format(*param))
+        #logger.info(f'Deleted from feed: {len(post_uris_to_delete)}')
+        #for uri_to_delete in post_uris_to_delete:
+        #    query = """DELETE FROM "post" WHERE "post"."uri" = (?);"""
+        #    conn.execute(query, uri_to_delete)
+
+        #conn.execute('DELETE FROM post WHERE post.uri IN (?)', post_uris_to_delete)
+        #stmt = session.query(Post).filter(Post.uri in post_uris_to_delete).delete()
+        #session.commit()
+        stmt = sqlalchemy.delete(Post).where(Post.uri.in_(post_uris_to_delete))
+        session.execute(stmt)
+
         logger.info(f'Deleted from feed: {len(post_uris_to_delete)}')
 
     if posts_to_create:
+        '''
         with db.atomic():
             for post_dict in posts_to_create:
                 Post.create(**post_dict)
+                print(post_dict)
+        '''
+        #for post_dict in posts_to_create:
+        #    query = """INSERT INTO 
+
+        #sqltuples = [(k1, k2, v2) for k1, v1 in posts_to_create.items() for k2, v2 in v1.items()]
+        #conn.executemany('INSERT INTO playlists (uri, cid, reply_parent, reply_root) VALUES (?,?,?)', sqltuples)
+        
+        '''
+        with session.begin():
+            for post_dict in posts_to_create:
+                stmt = sqlalchemy.insert(Post).values(**post_dict)
+                session.execute(stmt)
+                print(post_dict)
+        '''
+
+        #stmt = sqlalchemy.insert(Post)
+        print('here')
+        session.execute(sqlalchemy.insert(Post), posts_to_create)
+
         logger.info(f'Added to feed: {len(posts_to_create)}')

@@ -4,8 +4,16 @@ from collections import defaultdict
 from atproto import AtUri, CAR, firehose_models, FirehoseSubscribeReposClient, models, parse_subscribe_repos_message
 from atproto.exceptions import FirehoseError
 
-from database import SubscriptionState
+#from database import conn#SubscriptionState
 from logger import logger
+import sqlalchemy
+import config
+
+# Open the connection to SQLite Cloud
+#conn = sqlitecloud.connect(config.SQLITE_CONN_STRING)
+#db = conn.cursor()
+
+from database import session, SubscriptionState
 
 _INTERESTED_RECORDS = {
     models.AppBskyFeedLike: models.ids.AppBskyFeedLike,
@@ -60,16 +68,31 @@ def run(name, operations_callback, stream_stop_event=None):
 
 
 def _run(name, operations_callback, stream_stop_event=None):
-    state = SubscriptionState.get_or_none(SubscriptionState.service == name)
+    #state = SubscriptionState.get_or_none(SubscriptionState.service == name)
+    #rows = db.execute("""SELECT cursor FROM subscriptionstate WHERE service = (?);""", (name)).fetchall()
+    #print(rows)
+
+    stmt = sqlalchemy.select(SubscriptionState).filter(SubscriptionState.service == name)
+    rows = session.execute(stmt).fetchone()
+    print(rows)
+    #print(rows[0].cursor)
 
     params = None
-    if state:
-        params = models.ComAtprotoSyncSubscribeRepos.Params(cursor=state.cursor)
+    #if state:
+    if rows:
+        #params = models.ComAtprotoSyncSubscribeRepos.Params(cursor=state.cursor)
+        #print(dir(rows[0]))
+        params = models.ComAtprotoSyncSubscribeRepos.Params(cursor=rows[0].cursor)
 
     client = FirehoseSubscribeReposClient(params)
 
-    if not state:
-        SubscriptionState.create(service=name, cursor=0)
+    #if not state:
+    #    SubscriptionState.create(service=name, cursor=0)
+
+    if not rows:
+        stmt = sqlalchemy.insert(SubscriptionState).values(service=name, cursor=0)
+        session.execute(stmt)
+        #db.execute("""INSERT INTO subscriptionstate (service, cursor) VALUES (?,?);""", (name, 0))
 
     def on_message_handler(message: firehose_models.MessageFrame) -> None:
         # stop on next message if requested
@@ -85,7 +108,12 @@ def _run(name, operations_callback, stream_stop_event=None):
         if commit.seq % 1000 == 0:  # lower value could lead to performance issues
             logger.debug(f'Updated cursor for {name} to {commit.seq}')
             client.update_params(models.ComAtprotoSyncSubscribeRepos.Params(cursor=commit.seq))
-            SubscriptionState.update(cursor=commit.seq).where(SubscriptionState.service == name).execute()
+            
+            #SubscriptionState.update(cursor=commit.seq).where(SubscriptionState.service == name).execute()
+            #db.execute("""UPDATE subscriptionstate SET cursor=(?) WHERE name=(?);""", (commit.seq, name))
+            stmt = sqlalchemy.update(SubscriptionState).where(SubscriptionState.service == name).values(cursor=commit.seq)
+            session.execute(stmt)
+
 
         if not commit.blocks:
             return
