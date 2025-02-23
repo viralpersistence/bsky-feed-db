@@ -43,13 +43,38 @@ def should_ignore_post(record: 'models.AppBskyFeedPost.Record') -> bool:
 
     return False
 
-KEYWORDS = {
-    "covid",
-    "long covid",
+KEYWORDS = [
     "me/cfs",
+    "mecfs",
     "mcas",
     "pots",
-}
+    "myalgice",
+    "myalgicencephalomyelitis",
+    "fibro",
+    "fibromyalgia",
+    "neisvoid",
+    "dysautonomia",
+    "longcovid",
+]
+
+KEYWORDS = KEYWORDS + ['#' + word for word in KEYWORDS]
+print(KEYWORDS)
+
+BIGRAMS = [
+    "myalgic encephalomyelitis,"
+    "long covid",
+    "mild me",
+    "mild me/cfs",
+    "mild mecfs",
+    "moderate me",
+    "moderate me/cfs",
+    "moderate mecfs",
+    "severe me",
+    "severe me/cfs",
+    "severe mecfs",
+    "mast cell",
+    "chronic fatigue",
+]
 
 def operations_callback(ops: defaultdict) -> None:
     # Here we can filter, process, run ML classification, etc.
@@ -82,8 +107,12 @@ def operations_callback(ops: defaultdict) -> None:
         if should_ignore_post(record):
             continue
 
+        text_words = [word.lower() for word in record.text.split()]
+        text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
+
         # only python-related posts
-        if any(keyword in record.text.lower() for keyword in KEYWORDS):
+        #if any(keyword in record.text.lower() for keyword in KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS):
+        if any(keyword in text_words for keyword in KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS):
             reply_root = reply_parent = None
             if record.reply:
                 reply_root = record.reply.root.uri
