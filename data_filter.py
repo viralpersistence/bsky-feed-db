@@ -55,6 +55,8 @@ KEYWORDS = [
     "neisvoid",
     "dysautonomia",
     "longcovid",
+    "iacc",
+    "iaccs",
 ]
 
 KEYWORDS = KEYWORDS + ['#' + word for word in KEYWORDS]
@@ -74,6 +76,10 @@ BIGRAMS = [
     "severe mecfs",
     "mast cell",
     "chronic fatigue",
+    "infection-associated chronic",
+    "infection associated",
+    "chronic illness",
+    "brain fog",
 ]
 
 def operations_callback(ops: defaultdict) -> None:
