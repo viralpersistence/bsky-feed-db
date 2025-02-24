@@ -9,7 +9,7 @@ from server.logger import logger
 import sqlalchemy
 
 
-from database import session, SubscriptionState
+from server.database import session, SubscriptionState
 
 _INTERESTED_RECORDS = {
     models.AppBskyFeedLike: models.ids.AppBskyFeedLike,
