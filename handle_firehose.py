@@ -2,20 +2,11 @@ import sys
 import signal
 import threading
 
-import data_stream
-import config
+from server import data_stream, config
 
-from logger import logger
-logger.info("0")
+from server.logger import logger
+from server.data_filter import operations_callback
 
-
-logger.info("1")
-
-
-logger.info("2")
-from data_filter import operations_callback
-
-logger.info("3")
 
 def sigint_handler(*_):
     print('Stopping data stream...')

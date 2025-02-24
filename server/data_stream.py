@@ -5,13 +5,9 @@ from atproto import AtUri, CAR, firehose_models, FirehoseSubscribeReposClient, m
 from atproto.exceptions import FirehoseError
 
 #from database import conn#SubscriptionState
-from logger import logger
+from server.logger import logger
 import sqlalchemy
-import config
 
-# Open the connection to SQLite Cloud
-#conn = sqlitecloud.connect(config.SQLITE_CONN_STRING)
-#db = conn.cursor()
 
 from database import session, SubscriptionState
 

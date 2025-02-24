@@ -3,7 +3,7 @@ import logging
 
 from dotenv import load_dotenv
 
-from logger import logger
+from server.logger import logger
 
 load_dotenv()
 
