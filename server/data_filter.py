@@ -9,6 +9,7 @@ from server.logger import logger
 import sqlalchemy
 #from database import conn#db, Post
 from server.database import session, Post
+from server.search_terms import post_contains_any
 
 # Open the connection to SQLite Cloud
 #conn = sqlitecloud.connect(config.SQLITE_CONN_STRING)
@@ -32,58 +33,18 @@ def is_archive_post(record: 'models.AppBskyFeedPost.Record') -> bool:
     return now - created_at > archived_threshold
 
 
-def should_ignore_post(created_post: dict) -> bool:
-    record = created_post['record']
-    uri = created_post['uri']
-
+def should_ignore_post(record: 'models.AppBskyFeedPost.Record') -> bool:
     if config.IGNORE_ARCHIVED_POSTS and is_archive_post(record):
-        logger.debug(f'Ignoring archived post: {uri}')
+        logger.debug(f'Ignoring archived post: {record.uri}')
         return True
 
     if config.IGNORE_REPLY_POSTS and record.reply:
-        logger.debug(f'Ignoring reply post: {uri}')
+        logger.debug(f'Ignoring reply post: {record.uri}')
         return True
 
     return False
 
-KEYWORDS = [
-    "me/cfs",
-    "mecfs",
-    "mcas",
-    "pots",
-    "myalgice",
-    "myalgicencephalomyelitis",
-    "fibro",
-    "fibromyalgia",
-    "neisvoid",
-    "dysautonomia",
-    "longcovid",
-    "iacc",
-    "iaccs",
-]
 
-KEYWORDS = KEYWORDS + ['#' + word for word in KEYWORDS]
-print(KEYWORDS)
-
-BIGRAMS = [
-    "myalgic encephalomyelitis,"
-    "long covid",
-    "mild me",
-    "mild me/cfs",
-    "mild mecfs",
-    "moderate me",
-    "moderate me/cfs",
-    "moderate mecfs",
-    "severe me",
-    "severe me/cfs",
-    "severe mecfs",
-    "mast cell",
-    "chronic fatigue",
-    "infection-associated chronic",
-    "infection associated",
-    "chronic illness",
-    "brain fog",
-]
 
 def operations_callback(ops: defaultdict) -> None:
     # Here we can filter, process, run ML classification, etc.
@@ -119,9 +80,7 @@ def operations_callback(ops: defaultdict) -> None:
         text_words = [word.lower() for word in record.text.split()]
         text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
 
-        # only python-related posts
-        #if any(keyword in record.text.lower() for keyword in KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS):
-        if any(keyword in text_words for keyword in KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS):
+        if post_contains_any(record):
             reply_root = reply_parent = None
             if record.reply:
                 reply_root = record.reply.root.uri
