@@ -6,9 +6,8 @@ from atproto.exceptions import FirehoseError
 
 #from database import conn#SubscriptionState
 from server.logger import logger
+
 import sqlalchemy
-
-
 from server.database import session, SubscriptionState
 
 _INTERESTED_RECORDS = {
