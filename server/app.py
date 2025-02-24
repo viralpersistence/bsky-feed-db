@@ -60,8 +60,7 @@ def get_feed_skeleton():
     # Example of how to check auth if giving user-specific results:
     try:
         requester_did = validate_auth(request)
-        logger.log("\n\n\n\n\n\n\n\n")
-        logger.log(requester_did)
+        logger.info(f"\n\n\n\n\n\n\n\n{requester_did}")
     except AuthorizationError:
         return 'Unauthorized', 401
     
