@@ -1,6 +1,6 @@
 from datetime import datetime
 import sqlitecloud
-import config
+from server import config
 import sqlalchemy
 from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
