@@ -3,6 +3,7 @@
 # pip3 install atproto
 
 import os
+import sys
 
 from dotenv import load_dotenv
 from atproto import Client, models
@@ -22,6 +23,8 @@ def _get_bool_env_var(value: str) -> bool:
     return False
 
 
+feed_suffix = sys.argv[1] + '_'
+
 # YOUR bluesky handle
 # Ex: user.bsky.social
 HANDLE: str = os.environ.get('HANDLE')
@@ -37,15 +40,15 @@ HOSTNAME: str = os.environ.get('HOSTNAME')
 # A short name for the record that will show in urls
 # Lowercase with no spaces.
 # Ex: whats-hot
-RECORD_NAME: str = os.environ.get('RECORD_NAME')
+RECORD_NAME: str = os.environ.get(feed_suffix + 'RECORD_NAME')
 
 # A display name for your feed
 # Ex: What's Hot
-DISPLAY_NAME: str = os.environ.get('DISPLAY_NAME')
+DISPLAY_NAME: str = os.environ.get(feed_suffix + 'DISPLAY_NAME')
 
 # (Optional) A description of your feed
 # Ex: Top trending content from the whole network
-DESCRIPTION: str = os.environ.get('DESCRIPTION')
+DESCRIPTION: str = os.environ.get(feed_suffix + 'DESCRIPTION')
 
 # (Optional) The path to an image to be used as your feed's avatar
 # Ex: ./path/to/avatar.jpeg

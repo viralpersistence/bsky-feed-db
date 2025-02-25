@@ -8,7 +8,7 @@ from server.client import client
 import sqlalchemy
 from server.database import session, Post#, User, Follows
 
-uri = config.FEED_URI
+uri = config.DISCOVER_FEED_URI
 CURSOR_EOF = 'eof'
 
 
@@ -41,7 +41,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     all_followed_dids = get_follows(requester_did)
     logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
 
-    stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+    stmt = sqlalchemy.select(Post).where(Post.discoverable and Post.reply_root is None and Post.reply_parent is None and not Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
 
 
@@ -71,7 +71,3 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
         'cursor': cursor,
         'feed': feed
     }
-
-
-if __name__ == '__main__':
-    handler(limit=10)
