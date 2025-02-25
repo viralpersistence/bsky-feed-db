@@ -11,35 +11,16 @@ from server.database import session, Post#, User, Follows
 uri = config.FEED_URI
 CURSOR_EOF = 'eof'
 
-'''
-def add_user(requester_did: str):
-    stmt = sqlalchemy.insert(User).values(did=requester_did)
-    session.execute(stmt)
-    logger.info(f'Added user {requester_did}')
-
-    all_followed_dids = []
-    res = client.get_follows(requester_did)
-    follows_cursor = res.cursor
-
-    while follows_cursor is not None:
-        all_followed_dids += [elem['did'] for elem in res.follows]
-        res = client.get_follows(requester_did, cursor=follows_cursor)
-        follows_cursor = res.cursor
-
-    follows_to_create = [{'did': requester_did, 'follows_did': did} for did in all_followed_dids]
-    session.execute(sqlalchemy.insert(Follows), follows_to_create)
-    logger.info(f'Added to follows: {len(follows_to_create)}')
-'''
 
 def get_follows(requester_did: str) -> list:
-    all_followed_dids = []
     res = client.get_follows(requester_did)
     follows_cursor = res.cursor
+    all_followed_dids = [elem['did'] for elem in res.follows]
 
     while follows_cursor is not None:
-        all_followed_dids += [elem['did'] for elem in res.follows]
         res = client.get_follows(requester_did, cursor=follows_cursor)
         follows_cursor = res.cursor
+        all_followed_dids += [elem['did'] for elem in res.follows]
 
     return all_followed_dids
 
