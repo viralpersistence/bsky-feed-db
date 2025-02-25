@@ -6,7 +6,7 @@ from server.logger import logger
 from server.client import client
 
 import sqlalchemy
-from server.database import session, Post, User, Follows
+from server.database import session, Post#, User, Follows
 
 uri = config.FEED_URI
 CURSOR_EOF = 'eof'
