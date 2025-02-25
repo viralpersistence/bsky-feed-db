@@ -30,15 +30,16 @@ class User(Base):
 
     id = Column("id", Integer, nullable=False, primary_key=True)
     did = Column("did", String, index=True, nullable=False, unique=True)
-    discoverable = Column("discoverable", Boolean, nullable=False, default=False)
+    #discoverable = Column("discoverable", Boolean, nullable=False, default=False)
 
-
+'''
 class Follows(Base):
     __tablename__ = 'follows'
 
     id = Column("id", Integer, nullable=False, primary_key=True)
     did = Column("did", String, ForeignKey(User.did), index=True, nullable=False)
     follows_did = Column("follows_did", String, nullable=False)
+'''
 
 
 
@@ -46,15 +47,18 @@ engine = sqlalchemy.create_engine(config.SQLITE_CONN_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-if not all([sqlalchemy.inspect(engine).has_table(table_name) for table_name in ("subscriptionstate","post","user","follows")]):
+#if not all([sqlalchemy.inspect(engine).has_table(table_name) for table_name in ("subscriptionstate","post","user","follows")]):
+if not all([sqlalchemy.inspect(engine).has_table(table_name) for table_name in ("subscriptionstate","post","user")]):
     Base.metadata.create_all(engine)
 
 #print(sqlalchemy.inspect(engine).has_table("post"))
 #print(sqlalchemy.inspect(engine).has_table("subscriptionstate"))
 
+'''
 if __name__ == '__main__':
     # drop tables
     Post.__table__.drop(engine)
     SubscriptionState.__table__.drop(engine)
     Follows.__table__.drop(engine)
     User.__table__.drop(engine)
+'''
