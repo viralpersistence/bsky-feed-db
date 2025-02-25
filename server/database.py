@@ -16,7 +16,9 @@ class Post(Base):
     did = Column("did", String, nullable=False)
     reply_parent = Column("reply_parent", String)
     reply_root = Column("reply_root", String)
+    discoverable = Column("discoverable", Boolean, nullable=False, default=False)
     indexed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
 
 class SubscriptionState(Base):
     __tablename__ = 'subscriptionstate'

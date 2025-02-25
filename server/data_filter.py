@@ -77,10 +77,9 @@ def operations_callback(ops: defaultdict) -> None:
         if should_ignore_post(record):
             continue
 
-        text_words = [word.lower() for word in record.text.split()]
-        text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
-
-        if post_contains_any(record):
+        should_appear, discoverable = post_contains_any(record)
+        #if post_contains_any(record):
+        if should_appear:
             reply_root = reply_parent = None
             if record.reply:
                 reply_root = record.reply.root.uri
@@ -92,6 +91,7 @@ def operations_callback(ops: defaultdict) -> None:
                 'reply_parent': reply_parent,
                 'reply_root': reply_root,
                 'did': author,
+                'discoverable': discoverable
             }
             posts_to_create.append(post_dict)
 

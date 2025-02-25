@@ -1,3 +1,7 @@
+from string import punctuation
+
+punc = ''.join([elem for elem in punctuation if elem != '#'])
+
 KEYWORDS = [
     "me/cfs",
     "mecfs",
@@ -48,7 +52,12 @@ BIGRAMS = [
 ]
 
 def post_contains_any(record):
-    text_words = [word.lower() for word in record.text.split()]
+    text_words = [word.lower().strip(punc) for word in record.text.split()]
     text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
 
-    return any(keyword in text_words for keyword in KEYWORDS + HASHTAG_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS)
+    if any(keyword in text_words for keyword in HASHTAG_KEYWORDS):
+        return True, True
+
+    return any(keyword in text_words for keyword in KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS), False
+
+    #return any(keyword in text_words for keyword in KEYWORDS + HASHTAG_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS)
