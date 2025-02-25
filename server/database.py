@@ -13,11 +13,9 @@ class Post(Base):
     id = Column("id", Integer, nullable=False, primary_key=True)
     uri = Column("uri", String, index=True, nullable=False)
     cid = Column("cid", String, nullable=False)
-    #reply_parent = Column("reply_parent", String)
-    #reply_root = Column("reply_root", String)
-
     did = Column("did", String, nullable=False)
-
+    reply_parent = Column("reply_parent", String)
+    reply_root = Column("reply_root", String)
     indexed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 class SubscriptionState(Base):

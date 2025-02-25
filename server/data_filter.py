@@ -83,9 +83,8 @@ def operations_callback(ops: defaultdict) -> None:
         if post_contains_any(record):
             reply_root = reply_parent = None
             if record.reply:
-                #reply_root = record.reply.root.uri
-                #reply_parent = record.reply.parent.uri
-                continue
+                reply_root = record.reply.root.uri
+                reply_parent = record.reply.parent.uri
 
             post_dict = {
                 'uri': created_post['uri'],
