@@ -41,7 +41,8 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     all_followed_dids = get_follows(requester_did)
     logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
 
-    stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+    #stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+    stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
 
 
