@@ -83,14 +83,16 @@ def operations_callback(ops: defaultdict) -> None:
         if post_contains_any(record):
             reply_root = reply_parent = None
             if record.reply:
-                reply_root = record.reply.root.uri
-                reply_parent = record.reply.parent.uri
+                #reply_root = record.reply.root.uri
+                #reply_parent = record.reply.parent.uri
+                continue
 
             post_dict = {
                 'uri': created_post['uri'],
                 'cid': created_post['cid'],
-                'reply_parent': reply_parent,
-                'reply_root': reply_root,
+                #'reply_parent': reply_parent,
+                #'reply_root': reply_root,
+                'did': author,
             }
             posts_to_create.append(post_dict)
 

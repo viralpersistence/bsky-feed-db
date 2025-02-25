@@ -68,7 +68,7 @@ def get_feed_skeleton():
     try:
         cursor = request.args.get('cursor', default=None, type=str)
         limit = request.args.get('limit', default=20, type=int)
-        body = algo(cursor, limit)
+        body = algo(cursor, limit, requester_did)
     except ValueError:
         return 'Malformed cursor', 400
 

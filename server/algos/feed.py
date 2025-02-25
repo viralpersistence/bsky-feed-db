@@ -5,20 +5,28 @@ from server import config
 from server.logger import logger
 
 import sqlalchemy
-from server.database import session, Post
+from server.database import session, Post, User, Follows
 
 uri = config.FEED_URI
 CURSOR_EOF = 'eof'
 
 
-def handler(cursor: Optional[str], limit: int) -> dict:
-    logger.info("****THIS HAPPENS4*******")
+def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
-    #posts = Post.select().order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    stmt = sqlalchemy.select(Post).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    posts = session.scalars(stmt).all()
+    #stmt = sqlalchemy.select(Post).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+    #posts = session.scalars(stmt).all()
 
-    #print(posts)
+    stmt = sqlalchemy.select(Follows).filter(Follows.did == requester_did)
+    rows = session.execute(stmt).fetchone()
+
+    if not rows:
+        stmt = sqlalchemy.insert(User).values(did=requester_did)
+        session.execute(stmt)
+
+        
+
+
+
 
     if cursor:
         if cursor == CURSOR_EOF:
