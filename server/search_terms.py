@@ -20,6 +20,8 @@ KEYWORDS = [
     "cfsme",
     "cfs/me",
     "endometriosis",
+    "cfs",
+    "chronicillness",
 ]
 
 HASHTAG_KEYWORDS = ['#' + word for word in KEYWORDS]

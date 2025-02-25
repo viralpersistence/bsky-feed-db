@@ -32,6 +32,7 @@ class User(Base):
     did = Column("did", String, index=True, nullable=False, unique=True)
     discoverable = Column("discoverable", Boolean, nullable=False, default=False)
 
+
 class Follows(Base):
     __tablename__ = 'follows'
 

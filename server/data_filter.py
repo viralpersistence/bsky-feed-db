@@ -89,8 +89,8 @@ def operations_callback(ops: defaultdict) -> None:
             post_dict = {
                 'uri': created_post['uri'],
                 'cid': created_post['cid'],
-                #'reply_parent': reply_parent,
-                #'reply_root': reply_root,
+                'reply_parent': reply_parent,
+                'reply_root': reply_root,
                 'did': author,
             }
             posts_to_create.append(post_dict)
