@@ -33,12 +33,15 @@ if not PASSWORD:
 if not SERVICE_DID:
     SERVICE_DID = f'did:web:{HOSTNAME}'
 
-
+'''
 FEED_URI = os.environ.get('FEED_URI')
 if not FEED_URI:
     raise RuntimeError('Publish your feed first (run publish_feed.py) to obtain Feed URI. '
                        'Set this URI to "FEED_URI" environment variable.')
+'''
 
+FOLLOWING_FEED_URI = os.environ.get('FOLLOWING_FEED_URI')
+DISCOVER_FEED_URI = os.environ.get('DISCOVER_FEED_URI')
 
 def _get_bool_env_var(value: str) -> bool:
     if value is None:
