@@ -1,7 +1,7 @@
-from . import following, discovery
+from . import following, discover
 
 algos = {
     #feed.uri: feed.handler
     following.uri: following.handler,
-    discovery.uri: discovery.handler,
+    discover.uri: discover.handler,
 }
