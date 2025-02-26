@@ -35,7 +35,7 @@ EXPANDED_KEYWORDS = [
     "hypermobility",
     "brainfog",
     "migraine",
-    "pain",
+    #"pain",
     "headache",
     "insomnia",
     "immune",
@@ -65,6 +65,9 @@ BIGRAMS = [
     "chronic illness",
     "brain fog",
     "ehlers danlos",
+    "joint pain",
+    "muscle pain",
+    "chronic pain",
 ]
 
 def post_contains_any(record):

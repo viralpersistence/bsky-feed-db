@@ -66,7 +66,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     cursor = CURSOR_EOF
     last_post = posts[-1] if posts else None
     if last_post:
-        cursor = f'{int(last_post.created_at.timestamp() * 1000)}::{last_post.cid}'
+        cursor = f'{int(last_post.indexed_at.timestamp() * 1000)}::{last_post.cid}'
 
     return {
         'cursor': cursor,
