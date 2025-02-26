@@ -59,14 +59,14 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
         indexed_at, cid = cursor_parts
         indexed_at = datetime.fromtimestamp(int(indexed_at) / 1000)
         #posts = posts.where(((Post.indexed_at == indexed_at) & (Post.cid < cid)) | (Post.indexed_at < indexed_at))
-        posts = [post for post in posts if (post.indexed_at == indexed_at and post.cid < cid) or post.indexed_at < indexed_at]
+        posts = [post for post in posts if (post.created_at == indexed_at and post.cid < cid) or post.indexed_at < indexed_at]
 
     feed = [{'post': post.uri} for post in posts]
 
     cursor = CURSOR_EOF
     last_post = posts[-1] if posts else None
     if last_post:
-        cursor = f'{int(last_post.indexed_at.timestamp() * 1000)}::{last_post.cid}'
+        cursor = f'{int(last_post.created_at.timestamp() * 1000)}::{last_post.cid}'
 
     return {
         'cursor': cursor,
