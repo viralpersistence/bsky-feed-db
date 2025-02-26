@@ -94,7 +94,7 @@ def operations_callback(ops: defaultdict) -> None:
                 'reply_root': reply_root,
                 'did': author,
                 'discoverable': discoverable,
-                'created_at': parser.parse(record.created_at),
+                'indexed_at': parser.parse(record.created_at),
             }
             posts_to_create.append(post_dict)
 
