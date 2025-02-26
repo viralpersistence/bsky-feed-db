@@ -36,7 +36,7 @@ EXPANDED_KEYWORDS = [
     "brainfog",
     "migraine",
     #"pain",
-    "headache",
+    #"headache",
     "insomnia",
     "immune",
     "immunocompromise",
