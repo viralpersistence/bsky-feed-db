@@ -44,6 +44,8 @@ EXPANDED_KEYWORDS = [
     "cfs",
 ]
 
+HASHTAG_EXPANDED_KEYWORDS = ['#' + word for word in KEYWORDS]
+
 BIGRAMS = [
     "myalgic encephalomyelitis,"
     "long covid",
@@ -72,6 +74,6 @@ def post_contains_any(record):
     if any(keyword in text_words for keyword in HASHTAG_KEYWORDS):
         return True, True
 
-    return any(keyword in text_words for keyword in KEYWORDS + EXPANDED_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS), False
+    return any(keyword in text_words for keyword in KEYWORDS + EXPANDED_KEYWORDS + HASHTAG_EXPANDED_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS), False
 
     #return any(keyword in text_words for keyword in KEYWORDS + HASHTAG_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS)
