@@ -42,7 +42,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
 
     #stmt = sqlalchemy.select(Post).where(Post.discoverable and Post.reply_root is None and Post.reply_parent is None and not Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    stmt = sqlalchemy.select(Post).where(Post.discoverable and Post.did.not_in(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+    stmt = sqlalchemy.select(Post).where(Post.discoverable,_is(True) and Post.did.not_in(all_followed_dids)).order_by(Post.created_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
 
 

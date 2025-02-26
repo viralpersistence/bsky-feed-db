@@ -2,6 +2,7 @@ from string import punctuation
 
 punc = ''.join([elem for elem in punctuation if elem != '#'])
 
+
 KEYWORDS = [
     "me/cfs",
     "mecfs",
@@ -11,24 +12,37 @@ KEYWORDS = [
     "myalgicencephalomyelitis",
     "fibro",
     "fibromyalgia",
-    "neisvoid",
     "dysautonomia",
     "longcovid",
     "iacc",
     "iaccs",
-    "pem",
     "pwme",
     "pwlc",
-    "eds",
-    "ehlers-danlos",
     "cfsme",
     "cfs/me",
-    "endometriosis",
-    "cfs",
-    "chronicillness",
 ]
 
 HASHTAG_KEYWORDS = ['#' + word for word in KEYWORDS]
+
+EXPANDED_KEYWORDS = [
+    "endometriosis",
+    "chronicillness",
+    "eds",
+    "pem",
+    "ehlers-danlos",
+    "hypermobile",
+    "hypermobility",
+    "neisvoid",
+    "brainfog",
+    "migraine",
+    "pain",
+    "headache",
+    "insomnia",
+    "immune",
+    "immunocompromise",
+    "immunocompromised",
+    "cfs",
+]
 
 BIGRAMS = [
     "myalgic encephalomyelitis,"
@@ -58,6 +72,6 @@ def post_contains_any(record):
     if any(keyword in text_words for keyword in HASHTAG_KEYWORDS):
         return True, True
 
-    return any(keyword in text_words for keyword in KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS), False
+    return any(keyword in text_words for keyword in KEYWORDS + EXPANDED_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS), False
 
     #return any(keyword in text_words for keyword in KEYWORDS + HASHTAG_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS)

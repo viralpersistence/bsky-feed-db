@@ -4,3 +4,4 @@ python-dotenv~=1.0.0
 sqlitecloud
 sqlalchemy
 sqlalchemy-sqlitecloud
+python-dateutil

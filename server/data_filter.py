@@ -1,4 +1,5 @@
 import datetime
+from dateutil import parser
 
 from collections import defaultdict
 
@@ -10,6 +11,7 @@ import sqlalchemy
 #from database import conn#db, Post
 from server.database import session, Post
 from server.search_terms import post_contains_any
+
 
 # Open the connection to SQLite Cloud
 #conn = sqlitecloud.connect(config.SQLITE_CONN_STRING)
@@ -91,18 +93,20 @@ def operations_callback(ops: defaultdict) -> None:
                 'reply_parent': reply_parent,
                 'reply_root': reply_root,
                 'did': author,
-                'discoverable': discoverable
+                'discoverable': discoverable,
+                'created_at': parser.parse(record.created_at),
             }
             posts_to_create.append(post_dict)
 
-            logger.info(
-                f'NEW POST '
-                f'[CREATED_AT={record.created_at}]'
-                f'[AUTHOR={author}]'
-                f'[WITH_IMAGE={post_with_images}]'
-                f'[WITH_VIDEO={post_with_video}]'
-                f': {inlined_text}'
-            )
+            if discoverable:
+                logger.info(
+                    f'NEW POST '
+                    f'[CREATED_AT={record.created_at}]'
+                    f'[AUTHOR={author}]'
+                    f'[WITH_IMAGE={post_with_images}]'
+                    f'[WITH_VIDEO={post_with_video}]'
+                    f': {inlined_text}'
+                )
 
     posts_to_delete = ops[models.ids.AppBskyFeedPost]['deleted']
     if posts_to_delete:
