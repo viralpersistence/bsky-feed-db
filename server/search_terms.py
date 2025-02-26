@@ -20,6 +20,7 @@ KEYWORDS = [
     "pwlc",
     "cfsme",
     "cfs/me",
+    "neisvoid",
 ]
 
 HASHTAG_KEYWORDS = ['#' + word for word in KEYWORDS]
@@ -32,7 +33,6 @@ EXPANDED_KEYWORDS = [
     "ehlers-danlos",
     "hypermobile",
     "hypermobility",
-    "neisvoid",
     "brainfog",
     "migraine",
     "pain",
