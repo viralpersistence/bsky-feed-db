@@ -62,7 +62,11 @@ def operations_callback(ops: defaultdict) -> None:
 
         post_with_images = isinstance(record.embed, models.AppBskyEmbedImages.Main)
         post_with_video = isinstance(record.embed, models.AppBskyEmbedVideo.Main)
+        post_with_external = isinstance(record.embed, models.AppBskyEmbedExternal.Main)
         inlined_text = record.text.replace('\n', ' ')
+
+        #if post_with_external:
+        #    print(record.embed)
 
         # print all texts just as demo that data stream works
         '''
@@ -94,6 +98,7 @@ def operations_callback(ops: defaultdict) -> None:
                 'reply_root': reply_root,
                 'did': author,
                 'discoverable': discoverable,
+                'has_link': post_with_external,
                 'indexed_at': parser.parse(record.created_at),
             }
             posts_to_create.append(post_dict)
