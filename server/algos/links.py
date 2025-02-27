@@ -6,6 +6,7 @@ from server.logger import logger
 from server.client import client
 
 import sqlalchemy
+from sqlalchemy import or_
 from server.database import session, Post#, User, Follows
 
 uri = config.LINKS_FEED_URI
@@ -42,7 +43,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
 
     #stmt = sqlalchemy.select(Post).where(Post.discoverable and Post.reply_root is None and Post.reply_parent is None and not Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    stmt = sqlalchemy.select(Post).filter(Post.has_link).where(Post.did.in_(all_followed_dids) or Post.discoverable == 1).order_by(Post.indexed_at.desc()).limit(limit)
+    stmt = sqlalchemy.select(Post).filter(Post.has_link).where(or_(Post.did.in_(all_followed_dids), Post.discoverable == 1)).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
 
 
