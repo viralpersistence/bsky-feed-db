@@ -42,6 +42,7 @@ EXPANDED_KEYWORDS = [
     "immunocompromise",
     "immunocompromised",
     "cfs",
+    "chiari",
 ]
 
 HASHTAG_EXPANDED_KEYWORDS = ['#' + word for word in KEYWORDS]
@@ -68,6 +69,22 @@ BIGRAMS = [
     "joint pain",
     "muscle pain",
     "chronic pain",
+    "tethered cord",
+    "epstein barr",
+]
+
+LINK_TERMS = [
+    "nih",
+    "cdc",
+    "fatigue",
+    "pain",
+    "sleep",
+    "headache",
+    "infection",
+    "covid",
+    "flu",
+    "influenza",
+    "ebv",
 ]
 
 def post_contains_any(record):
@@ -80,3 +97,7 @@ def post_contains_any(record):
     return any(keyword in text_words for keyword in KEYWORDS + EXPANDED_KEYWORDS + HASHTAG_EXPANDED_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS), False
 
     #return any(keyword in text_words for keyword in KEYWORDS + HASHTAG_KEYWORDS) or any(bigram in text_bigrams for bigram in BIGRAMS)
+
+def post_contains_link_term(record):
+    text_words = [word.lower().strip(punc) for word in record.text.split()]
+    return any(keyword in text_words for keyword in LINK_TERMS)

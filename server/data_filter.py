@@ -10,7 +10,7 @@ from server.logger import logger
 import sqlalchemy
 #from database import conn#db, Post
 from server.database import session, Post
-from server.search_terms import post_contains_any
+from server.search_terms import post_contains_any, post_contains_link_term
 
 
 # Open the connection to SQLite Cloud
@@ -84,6 +84,10 @@ def operations_callback(ops: defaultdict) -> None:
             continue
 
         should_appear, discoverable = post_contains_any(record)
+
+        if post_with_external and not should_appear:
+            should_appear = post_contains_link_term(record)
+
         #if post_contains_any(record):
         if should_appear:
             reply_root = reply_parent = None
