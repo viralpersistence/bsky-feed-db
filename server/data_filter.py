@@ -10,7 +10,7 @@ from server.logger import logger
 from server.client import client
 import sqlalchemy
 #from database import conn#db, Post
-from server.database import session, Post
+from server.database import session, Post, FeedUser, UserFollows
 from server.search_terms import post_contains_any, post_contains_link_term
 
 import time
@@ -49,19 +49,76 @@ def should_ignore_post(record: 'models.AppBskyFeedPost.Record') -> bool:
     return False
 
 
-myobj = 'yeahhhhhhhh!'
+stmt = sqlalchemy.select(FeedUser)
+feed_users = {row.did: row.id for row in session.scalars(stmt).all()}
 
-def operations_callback(ops: defaultdict, reload: bool) -> None:
+def operations_callback(ops: defaultdict) -> None:
     # Here we can filter, process, run ML classification, etc.
     # After our feed alg we can save posts into our DB
     # Also, we should process deleted posts to remove them from our DB and keep it in sync
 
     # for example, let's create our custom feed that will contain all posts that contains alf related text
 
-    if reload:
-        print('here')
-        print(myobj)
 
+    #stmt = sqlalchemy.select(FeedUser)
+    #feed_users = {row.did: row.id for row in session.scalars(stmt).all()}
+    #self.feed_users = {row.did for row in feed_users}
+
+    logger.info(ops[models.ids.AppBskyGraphFollow])
+
+    
+    userfollows_to_create = []
+    for created_follow in ops[models.ids.AppBskyGraphFollow]['created']:
+        #print(myobj)
+        if created_follow['author'] == 'did:plc:ptqbnzqvblvezfga4zpqocu4':
+            print('here')
+            #print(feed_users)
+
+        
+        author_uses_feed = created_follow['author'] in feed_users
+        if not author_uses_feed:
+            continue
+
+        post_dict = {
+            'user_id': feed_users[created_follow['author']],
+            'uri': created_follow['uri'],
+            'follows_did': created_follow['record'].subject,
+        }
+
+        print('this happens0')
+
+        userfollows_to_create.append(post_dict)
+        
+
+    if userfollows_to_create:
+        session.execute(sqlalchemy.insert(UserFollows), userfollows_to_create)
+        logger.info(f'Added to userfollows: {len(userfollows_to_create)}')
+
+    userfollows_to_delete = ops[models.ids.AppBskyGraphFollow]['deleted']
+    if userfollows_to_delete:
+        userfollows_uris_to_delete = [userfollow['uri'] for userfollow in userfollows_to_delete]
+
+        stmt = sqlalchemy.delete(UserFollows).where(UserFollows.uri.in_(userfollows_uris_to_delete))
+        session.execute(stmt)
+
+        logger.info(f'Deleted from userfollows: {len(userfollows_uris_to_delete)}')
+    
+
+    #at://did:plc:ptqbnzqvblvezfga4zpqocu4/app.bsky.graph.follow/3ljlykzbclg2k
+    #at://did:plc:ptqbnzqvblvezfga4zpqocu4/app.bsky.graph.follow/3ljlystq6uj22
+
+
+    
+
+    '''
+    unfollows = ops[models.ids.AppBskyGraphFollow]['deleted']
+    if unfollows:
+        follow_uris_to_delete = [record['uri'] for record in unfollows]
+        stmt = sqlalchemy.delete(UserFollows).where(UserFollows.uri.in_(follow_uris_to_delete))
+        session.execute(stmt)
+
+        logger.info(f'Deleted from userfollows: {len(follow_uris_to_delete)}')
+    '''
 
     posts_to_create = []
     for created_post in ops[models.ids.AppBskyFeedPost]['created']:

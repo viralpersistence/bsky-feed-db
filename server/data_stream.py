@@ -62,7 +62,7 @@ def run(name, operations_callback, q, stream_stop_event=None):
             logger.error(f'Firehose error: {e}. Reconnecting to the firehose.')
 
 
-def _run(name, operations_callback, q, stream_stop_event=None):
+def _run(name, operations_callback, ts, stream_stop_event=None):
     print('...')
     #state = SubscriptionState.get_or_none(SubscriptionState.service == name)
     #rows = db.execute("""SELECT cursor FROM subscriptionstate WHERE service = (?);""", (name)).fetchall()
@@ -92,10 +92,15 @@ def _run(name, operations_callback, q, stream_stop_event=None):
 
     def on_message_handler(message: firehose_models.MessageFrame) -> None:
 
-        if q.empty():
-            reload = False
-        else:
-            reload = q.get()
+        #if q.empty():
+        #    reload = False
+        #else:
+        #    reload = q.get()
+
+        #print(q.get_val())
+
+        #feed_users = ts.get_feed_users()
+        #print(feed_users)
 
 
         # stop on next message if requested
@@ -121,6 +126,6 @@ def _run(name, operations_callback, q, stream_stop_event=None):
         if not commit.blocks:
             return
 
-        operations_callback(_get_ops_by_type(commit), reload=reload)
+        operations_callback(_get_ops_by_type(commit))
 
     client.start(on_message_handler)

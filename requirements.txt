@@ -5,3 +5,4 @@ sqlitecloud
 sqlalchemy
 sqlalchemy-sqlitecloud
 python-dateutil
+requests
