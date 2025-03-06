@@ -1,9 +1,10 @@
-from server.utils import add_user
+from server.utils import get_or_add_user
 from server.database import session, UserFollows, FeedUser, Post
 import sqlalchemy
 
 my_did = 'did:plc:ptqbnzqvblvezfga4zpqocu4'
 
+'''
 stmt = sqlalchemy.select(FeedUser).filter(FeedUser.did == my_did)
 rows = session.execute(stmt).fetchone()
 
@@ -13,7 +14,10 @@ if rows:
 else:
     print('here1')
     user_id = add_user(my_did)
+'''
 
+user = get_or_add_user(my_did)
+user_id = user.id
 print(user_id)
 
 # select * from posts join userfollows on posts.did=userfollows.follows_did where userfollows.userid=[my_userid]

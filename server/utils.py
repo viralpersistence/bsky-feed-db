@@ -8,7 +8,7 @@ def get_or_add_user(requester_did: str) -> int:
     rows = session.execute(stmt).fetchone()
 
     if rows:
-        return rows[0].id
+        return rows[0]
 
     user = FeedUser(did=requester_did)
     session.add(user)
@@ -26,6 +26,15 @@ def get_or_add_user(requester_did: str) -> int:
         }
     )
 
+    '''
+    # add user settings
+
+    user_setting = UserSetting(user_id=user.id, setting_name="replies_off")
+    session.add(user_setting)
+    session.commit()
+    '''
+
+    # add user follows
     all_follows = []
 
     more_follows = True
@@ -53,4 +62,4 @@ def get_or_add_user(requester_did: str) -> int:
     session.execute(sqlalchemy.insert(UserFollows), all_follows)
     logger.info(f'Added to userfollows: {len(all_follows)}')
 
-    return user.id
+    return user

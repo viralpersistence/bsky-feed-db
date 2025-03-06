@@ -37,6 +37,8 @@ class FeedUser(Base):
     did = Column("did", String, index=True, nullable=False, unique=True)
     #discoverable = Column("discoverable", Boolean, nullable=False, default=False)
 
+    replies_off = Column("replies_off", Boolean, nullable=False, default=False)
+
 
 class UserFollows(Base):
     __tablename__ = 'userfollows'
@@ -81,6 +83,16 @@ class UserList(Base):
     id = Column("id", Integer, nullable=False, primary_key=True)
     user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
     subscribes_to_did = Column("subscribes_to_did", String, nullable=False)
+
+'''
+class UserSetting(Base):
+    __tablename__ = 'usersetting'
+
+    id = Column("id", Integer, nullable=False, primary_key=True)
+    user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
+    setting_name = Column("setting_name", String, nullable=False)
+    setting_value = Column("setting_value", Boolean, nullable=False, default=False)
+'''
 
 class Feed(Base):
     __tablename__ = 'feed'
