@@ -50,7 +50,7 @@ class UserFollows(Base):
     uri = Column("uri", String, index=True, nullable=False)
 
 
-
+'''
 class UserListPost(Base):
     __tablename__ = "userlistpost"
 
@@ -63,6 +63,8 @@ class UserListPost(Base):
     #reply_root = Column("reply_root", String)
     #reply_root_did = Column("reply_root_did", String)
     indexed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+'''
+
 
 '''
 class DatabaseUser(Base):
@@ -77,8 +79,23 @@ class UserList(Base):
     __tablename__ = 'userlist'
 
     id = Column("id", Integer, nullable=False, primary_key=True)
-    did = Column("did", String, index=True, nullable=False)
-    subscribes_to = Column("subscribes_to", String, nullable=False)
+    user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
+    subscribes_to_did = Column("subscribes_to_did", String, nullable=False)
+
+class Feed(Base):
+    __tablename__ = 'feed'
+
+    id = Column("id", Integer, nullable=False, primary_key=True)
+    feed_name = Column("feed_name", String, nullable=False, unique=True)
+
+
+class FeedMember(Base):
+
+    __tablename__ = 'feedmember'
+
+    id = Column("id", Integer, nullable=False, primary_key=True)
+    user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
+    feed_id = Column("feed_id", Integer, ForeignKey(Feed.id), nullable=False)
 
 
 
@@ -96,8 +113,10 @@ all_table_names = (
     "subscriptionstate",
     "feeduser",
     "userfollows",
-    "userlistpost",
+    #"userlistpost",
     "userlist",
+    "feed",
+    "feedmember"
 )
 
 

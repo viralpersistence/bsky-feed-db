@@ -94,3 +94,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
+    # test: 'did:plc:x4qyokjtdzgl7gmqhsw4ajqj', 'did:plc:eppsmw5nfmdzhfeymtzd3xbe', 'did:plc:r6wxaadynk3m7sqsyn3r3vrf', 'did:plc:r63juenfni5lyahm4prwvhdg'

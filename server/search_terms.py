@@ -1,4 +1,6 @@
 from string import punctuation
+from server.database import session, Feed
+import sqlalchemy
 
 punc = ''.join([elem for elem in punctuation if elem != '#'])
 
@@ -93,6 +95,26 @@ LINK_TERMS = [
     "ebv",
 ]
 
+'''
+SUBFEED_NAMES = [
+    'Test1',
+    'Test2'
+]
+'''
+
+SUBFEED_CMDS = {
+    '#IaccAddTo': 'add',
+    '#IaccRemoveFrom': 'remove',
+}
+
+stmt = sqlalchemy.select(Feed)
+SUBFEED_NAMES = {row.feed_name: row.id for row in session.scalars(stmt).all()}
+
+
+SUBFEED_CMD_DICT = {''.join([cmd, subfeed_name]).lower(): (action, subfeed_name) for subfeed_name in SUBFEED_NAMES for cmd, action in SUBFEED_CMDS.items()}
+
+print(SUBFEED_CMD_DICT)
+
 def post_contains_any(record):
     text_words = [word.lower().strip(punc) for word in record.text.split()]
     text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
@@ -107,3 +129,27 @@ def post_contains_any(record):
 def post_contains_link_term(record):
     text_words = [word.lower().strip(punc) for word in record.text.split()]
     return any(keyword in text_words for keyword in LINK_TERMS)
+
+
+def post_contains_feed_cmd(record):
+    text_words = list(set([word.lower().strip(punc) for word in record.text.split()]))
+
+    #if any(cmd in text_words for cmd in SUBFEED_CMD_DICT):
+    #    cmd, action = SUBFEED_CMD_DICT
+    #    return True, 
+
+    words_in_cmds_dict = [SUBFEED_CMD_DICT[word] for word in text_words if word in SUBFEED_CMD_DICT]
+
+    cmds = {}
+
+    for action, subfeed_name in words_in_cmds_dict:
+
+        if action not in cmds:
+            cmds[action] = []
+
+        cmds[action].append(SUBFEED_NAMES[subfeed_name])
+
+    #if len(words_in_cmds_dict) > 1:
+    #    raise ValueError
+
+    return cmds

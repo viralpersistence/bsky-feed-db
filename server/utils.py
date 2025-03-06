@@ -3,7 +3,13 @@ from server.logger import logger
 import sqlalchemy
 import requests
 
-def add_user(requester_did: str) -> int:
+def get_or_add_user(requester_did: str) -> int:
+    stmt = sqlalchemy.select(FeedUser).filter(FeedUser.did == requester_did)
+    rows = session.execute(stmt).fetchone()
+
+    if rows:
+        return rows[0].id
+
     user = FeedUser(did=requester_did)
     session.add(user)
     session.commit()
@@ -15,7 +21,8 @@ def add_user(requester_did: str) -> int:
         "https://bsky.social/xrpc/com.atproto.repo.listRecords", 
         params={
             "repo": requester_did, 
-            "collection": "app.bsky.graph.follow"
+            "collection": "app.bsky.graph.follow",
+            "limit": 100,
         }
     )
 
@@ -25,12 +32,14 @@ def add_user(requester_did: str) -> int:
     cursor = ''
 
     while more_follows:
+        # TODO: limit to some high amount of follows?
         follows_batch = requests.get(
             "https://bsky.social/xrpc/com.atproto.repo.listRecords",
             params={
                 "repo": requester_did,
                 "collection": "app.bsky.graph.follow",
-                "cursor": cursor
+                "cursor": cursor,
+                "limit": 100,
             },
         ).json()
 
