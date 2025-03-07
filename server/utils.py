@@ -1,7 +1,21 @@
-from server.database import session, FeedUser, UserFollows
-from server.logger import logger
+from server.database import session, FeedUser, UserFollows, Post
+#from server.client import bsky_client
 import sqlalchemy
 import requests
+
+
+'''
+def add_feed_posts(user: FeedUser) -> None:
+    print(user.did)
+    #pass
+    data = bsky_client.get_author_feed(actor=user.did, limit=50)
+
+    for post in data['feed']:
+        posts_to_create = 
+
+    print(dir(data['feed']))
+    print(data['feed'][0])
+'''
 
 def get_or_add_user(requester_did: str) -> int:
     stmt = sqlalchemy.select(FeedUser).filter(FeedUser.did == requester_did)
@@ -15,8 +29,9 @@ def get_or_add_user(requester_did: str) -> int:
     session.commit()
     #print(user.id)
 
-    logger.info(f'Added to feeduser: {requester_did}')
+    #logger.info(f'Added to feeduser: {requester_did}')
 
+    '''
     res = requests.get(
         "https://bsky.social/xrpc/com.atproto.repo.listRecords", 
         params={
@@ -25,6 +40,7 @@ def get_or_add_user(requester_did: str) -> int:
             "limit": 100,
         }
     )
+    '''
 
     '''
     # add user settings
@@ -35,7 +51,7 @@ def get_or_add_user(requester_did: str) -> int:
     '''
 
     # add user follows
-    all_follows = []
+    #all_follows = []
 
     more_follows = True
     cursor = ''
@@ -52,14 +68,18 @@ def get_or_add_user(requester_did: str) -> int:
             },
         ).json()
 
-        all_follows += [{'user_id': user.id,'follows_did': elem['value']['subject'], 'uri': elem['uri']} for elem in follows_batch['records']]
+        #all_follows += [{'user_id': user.id,'follows_did': elem['value']['subject'], 'uri': elem['uri']} for elem in follows_batch['records']]
+
+        follows = [{'user_id': user.id,'follows_did': elem['value']['subject'], 'uri': elem['uri']} for elem in follows_batch['records']]
+
+        if follows:
+            session.execute(sqlalchemy.insert(UserFollows), follows)
 
         if 'cursor' in follows_batch:
             cursor = follows_batch['cursor']
         else:
             more_follows = False
 
-    session.execute(sqlalchemy.insert(UserFollows), all_follows)
-    logger.info(f'Added to userfollows: {len(all_follows)}')
+        #logger.info(f'Added to userfollows: {len(all_follows)}')
 
     return user

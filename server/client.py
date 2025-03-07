@@ -4,5 +4,5 @@ from atproto import Client
 from server import config
 
 # Create a Bluesky client
-client = Client("https://bsky.social")
-client.login(config.HANDLE, config.PASSWORD)
+bsky_client = Client("https://bsky.social")
+bsky_client.login(config.HANDLE, config.PASSWORD)

@@ -8,11 +8,10 @@ from server.utils import get_or_add_user
 
 # script to update feed members and settings based on notifications
 
-punc = ''.join([elem for elem in punctuation if elem != '#'])
 
 SUBFEED_CMDS = {
-    '#IaccAddTo': 'add',
-    '#IaccRemoveFrom': 'remove',
+    'AddTo': 'add',
+    'RemoveFrom': 'remove',
 }
 
 stmt = sqlalchemy.select(Feed)
@@ -23,15 +22,15 @@ SUBFEED_CMD_DICT = {''.join([cmd, subfeed_name]).lower(): (action, subfeed_name)
 
 
 SETTING_CMDS = {
-    '#IaccRepliesOn'.lower(): ('replies_off', False, 'Feeds will now include replies.'),
-    '#IaccRepliesOff'.lower(): ('replies_off', True, 'Feeds will no longer include replies.')
+    'RepliesOn'.lower(): ('replies_off', False, 'Feeds will now include replies.'),
+    'RepliesOff'.lower(): ('replies_off', True, 'Feeds will no longer include replies.')
 }
 
-print(SUBFEED_CMD_DICT)
+#print(SUBFEED_CMD_DICT)
 
 
 def post_contains_cmd(record):
-    text_words = list(set([word.lower().strip(punc) for word in record.text.split()]))
+    text_words = list(set([word.lower().strip(punctuation) for word in record.text.split()]))
     words_in_cmds_dict = [SUBFEED_CMD_DICT[word] for word in text_words if word in SUBFEED_CMD_DICT]
 
     feed_cmds = {}
@@ -43,39 +42,20 @@ def post_contains_cmd(record):
 
     setting_cmds = [SETTING_CMDS[word] for word in text_words if word in SETTING_CMDS]
 
-    #print(feed_cmds)
-    #print(setting_cmds)
-
     return feed_cmds, setting_cmds
 
-#def post_contains_setting_cmd(record):
 
 
 def main() -> None:
-    #client = Client()
-    #client.login('my-handle', 'my-password')
-
-    # fetch new notifications
     while True:
         response = client.app.bsky.notification.list_notifications()
         for notification in response.notifications:
             if notification.reason == 'mention' and not notification.is_read:
             
                 record = notification.record
-
-                #if record.reply:
                 root_uri = record.reply.root.uri if record.reply else notification.uri
                 root_cid = record.reply.root.cid if record.reply else notification.cid
-                #reply_parent = record.reply.parent.uri
 
-                #print(notification)
-                #print(reply_root)
-                #print(notification.uri)
-                #print(record.text)
-                #print('\n')
-                #continue
-                #print(record.text)
-                #print(type(record))
 
                 feed_cmds, setting_cmds = post_contains_cmd(record)
 
@@ -100,12 +80,6 @@ def main() -> None:
                             feed_members_to_create.append({'user_id': feed_user.id, 'feed_id': feed.id})
                             messages.append(f'Added to {feed.feed_name}.')
 
-                    #feed_members_to_create = [{'user_id': feed_user.id, 'feed_id': feed.id} for feed in feed_cmds['add']]
-                    #session.execute(sqlalchemy.insert(FeedMember), feed_members_to_create)
-                    #messages += [f'Added to {feed.feed_name}' for feed in feed_cmds['add']]
-                    #logger.info(f'Added to feed members: {len(feed_members_to_create)}')
-                    #print(f'Added {user_did} to ')
-
                     if feed_members_to_create:
                         session.execute(sqlalchemy.insert(FeedMember), feed_members_to_create)
 
@@ -114,8 +88,6 @@ def main() -> None:
                     stmt = sqlalchemy.delete(FeedMember).where(sqlalchemy.and_(FeedMember.user_id == feed_user.id, FeedMember.feed_id.in_(feeds_to_remove_from)))
                     session.execute(stmt)
                     messages += [f'Removed from {feed.feed_name}' for feed in feed_cmds['remove']]
-
-                    #logger.info(f'Deleted from feed members: {n_deletes}')
 
                 for col_name, value, message in setting_cmds:
                     setattr(feed_user, col_name, value)
@@ -127,12 +99,10 @@ def main() -> None:
                 reply_root = {'uri': root_uri, 'cid': root_cid}
                 client.send_post(
                     text='\n'.join(messages),
-                    #reply_to=models.AppBskyFeedPost.ReplyRef(parent=root_post_ref, root=root_post_ref),
                     reply_to=models.AppBskyFeedPost.ReplyRef(parent=reply_ref, root=reply_root),
                 )
 
                 client.app.bsky.notification.update_seen({'seen_at': client.get_current_time_iso()})
-
 
 
         time.sleep(10)
