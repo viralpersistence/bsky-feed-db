@@ -2,7 +2,7 @@ import time
 import sqlalchemy
 from atproto import models
 from string import punctuation
-from server.client import client
+from server.client import bsky_client
 from server.database import session, Feed, FeedMember
 from server.utils import get_or_add_user
 
@@ -48,7 +48,7 @@ def post_contains_cmd(record):
 
 def main() -> None:
     while True:
-        response = client.app.bsky.notification.list_notifications()
+        response = bsky_client.app.bsky.notification.list_notifications()
         for notification in response.notifications:
             if notification.reason == 'mention' and not notification.is_read:
             
@@ -97,15 +97,15 @@ def main() -> None:
 
                 reply_ref = {'uri': notification.uri, 'cid': notification.cid}
                 reply_root = {'uri': root_uri, 'cid': root_cid}
-                client.send_post(
+                bsky_client.send_post(
                     text='\n'.join(messages),
                     reply_to=models.AppBskyFeedPost.ReplyRef(parent=reply_ref, root=reply_root),
                 )
 
-                client.app.bsky.notification.update_seen({'seen_at': client.get_current_time_iso()})
+                bsky_client.app.bsky.notification.update_seen({'seen_at': bsky_client.get_current_time_iso()})
 
 
-        time.sleep(10)
+        time.sleep(60)
 
 
 if __name__ == '__main__':
