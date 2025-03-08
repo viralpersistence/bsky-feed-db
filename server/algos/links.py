@@ -7,7 +7,7 @@ from server.utils import get_or_add_user
 
 import sqlalchemy
 from sqlalchemy import or_
-from server.database import session, Post#, User, Follows
+from server.database import session, Post, UserFollows#, User, Follows
 
 uri = config.LINKS_FEED_URI
 CURSOR_EOF = 'eof'
@@ -48,7 +48,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     user = get_or_add_user(requester_did)
 
-    stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user_id)
+    stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user.id)
     userfollows_dids = [uf.follows_did for uf in session.scalars(stmt).all()]
 
     if user.replies_off:

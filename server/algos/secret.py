@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import Optional
 import sqlalchemy
+from sqlalchemy import and_
 
 from server import config
 from server.logger import logger
-from server.database import session, Post#, User, Follows
+from server.database import session, Post, UserList#, User, Follows
 from server.utils import get_or_add_user
 
 uri = config.SECRET_FEED_URI
@@ -17,14 +18,14 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     if user.replies_off:
         where_stmt = and_(
-            UserList.user_id == user_id,
+            UserList.user_id == user.id,
             Post.reply_parent == None,
             Post.reply_root == None
         )
     else:
-        where_stmt = UserList.user_id == user_id
-    
-    
+        where_stmt = UserList.user_id == user.id
+
+
     stmt = sqlalchemy.select(Post).join(UserList, Post.did == UserList.subscribes_to_did).where(where_stmt).order_by(Post.indexed_at.desc()).limit(15)
 
     posts = session.scalars(stmt).all()
