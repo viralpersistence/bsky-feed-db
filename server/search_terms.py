@@ -92,7 +92,7 @@ BIGRAMS = [
     'tethered cord']
 
 LINK_TERMS = [
-    'blood', 
+    #'blood', 
     'cdc', 
     'covid', 
     'covid-19', 
@@ -118,6 +118,13 @@ LINK_TERMS = [
     'viruses'
 ]
 
+SUBFEED_TERMS = {
+    'mutual-aid': {
+        'terms': ['bill', 'bills', 'cash', 'cashapp', 'donate', 'donation', 'helpsky', 'fundraise', 'fundraiser', 'fundraising', 'gofundme', 'mutualaid', 'paypal', 'rent', 'venmo'],
+        'bigrams': ['mutual aid'],
+    }
+}
+
 
 def post_contains_any(record):
     text_words = [word.lower().strip(punc) for word in record.text.split()]
@@ -132,3 +139,10 @@ def post_contains_any(record):
 def post_contains_link_term(record):
     text_words = [word.lower().strip(punc) for word in record.text.split()]
     return any(keyword in text_words for keyword in LINK_TERMS)
+
+
+def post_contains_subfeed_term(record, subfeed_name):
+    text_words = [word.lower().strip(punctuation) for word in record.text.split()]
+    text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
+
+    return any(keyword in text_words for keyword in SUBFEED_TERMS[subfeed_name]['terms']) or any(bigram in text_bigrams for bigram in SUBFEED_TERMS[subfeed_name]['bigrams'])

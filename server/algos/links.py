@@ -6,24 +6,11 @@ from server.logger import logger
 from server.utils import get_or_add_user
 
 import sqlalchemy
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from server.database import session, Post, UserFollows#, User, Follows
 
 uri = config.LINKS_FEED_URI
 CURSOR_EOF = 'eof'
-
-
-def get_follows(requester_did: str) -> list:
-    res = client.get_follows(requester_did)
-    follows_cursor = res.cursor
-    all_followed_dids = [elem['did'] for elem in res.follows]
-
-    while follows_cursor is not None:
-        res = client.get_follows(requester_did, cursor=follows_cursor)
-        follows_cursor = res.cursor
-        all_followed_dids += [elem['did'] for elem in res.follows]
-
-    return all_followed_dids
 
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
@@ -48,23 +35,28 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     user = get_or_add_user(requester_did)
 
+
     stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user.id)
     userfollows_dids = [uf.follows_did for uf in session.scalars(stmt).all()]
 
     if user.replies_off:
-        where_stmt = or_(
-            Post.did.in_(userfollows_dids),
-            Post.discoverable == 1,
+        where_stmt = and_(
             Post.userlist_only == 0,
-            Post.reply_parent == None,
-            Post.reply_root == None,
+            or_(
+                Post.did.in_(userfollows_dids),
+                Post.discoverable == 1,
+                Post.reply_parent == None,
+                Post.reply_root == None,
+            )
         )
 
     else:
-        where_stmt = or_(
-            Post.did.in_(userfollows_dids),
-            Post.discoverable == 1,
+        where_stmt = and_(
             Post.userlist_only == 0,
+            or_(
+                Post.did.in_(userfollows_dids),
+                Post.discoverable == 1,
+            )
         )
 
     stmt = sqlalchemy.select(Post).filter(Post.has_link == 1).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)

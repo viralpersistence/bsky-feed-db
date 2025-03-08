@@ -9,8 +9,8 @@ from server import config
 from server.logger import logger
 import sqlalchemy
 #from database import conn#db, Post
-from server.database import session, Post, FeedUser, UserFollows, UserList, Feed, FeedMember
-from server.search_terms import post_contains_any, post_contains_link_term
+from server.database import session, Post, FeedUser, UserFollows, UserList, Subfeed#, FeedMember
+from server.search_terms import post_contains_any, post_contains_link_term, post_contains_subfeed_term
 from server.utils import get_or_add_user
 
 import time
@@ -52,6 +52,22 @@ def should_ignore_post(record: 'models.AppBskyFeedPost.Record') -> bool:
 stmt = sqlalchemy.select(FeedUser)
 feed_users_dict = {row.did: row.id for row in session.scalars(stmt).all()}
 
+stmt = sqlalchemy.select(Subfeed)
+subfeeds_dict = {row.id: row.feed_name for row in session.scalars(stmt).all()}
+
+'''
+stmt = sqlalchemy.select(FeedMember)
+feed_members_dict = {}
+
+for row in session.scalars(stmt).all():
+    did = {v: k for k, v in feed_users_dict.items()}[row.user_id]
+
+    if did not in feed_members_dict:
+        feed_members_dict[did] = []
+
+    feed_members_dict[did].append(row.feed_id)
+'''
+
 stmt = sqlalchemy.select(UserList)
 user_lists_dict = {row.subscribes_to_did: '' for row in session.scalars(stmt).all()}
 
@@ -60,6 +76,8 @@ def operations_callback(ops: defaultdict) -> None:
     # Here we can filter, process, run ML classification, etc.
     # After our feed alg we can save posts into our DB
     # Also, we should process deleted posts to remove them from our DB and keep it in sync
+
+    #print(subfeeds_dict)
 
     
     userfollows_to_create = []
@@ -124,6 +142,22 @@ def operations_callback(ops: defaultdict) -> None:
 
         #userlist_only = not should_appear
 
+        
+
+        #if author in feed_members_dict:
+        #    for feed_id in feed_members_dict[author]:
+        #        feed_name = feeds_dict[feed_id]
+        #        if post_contains_subfeed_term(record, feed_name)
+
+        subfeed_only = None
+
+        if not should_appear:
+            for subfeed_id, subfeed_name in subfeeds_dict.items():
+                if (not record.reply) and post_contains_subfeed_term(record, subfeed_name):
+                    should_appear = True
+                    subfeed_only = subfeed_id
+
+
         if should_appear:
             userlist_only = False
         elif author in user_lists_dict:
@@ -145,19 +179,20 @@ def operations_callback(ops: defaultdict) -> None:
                 'discoverable': discoverable,
                 'has_link': post_with_external,
                 'userlist_only': userlist_only,
+                'subfeed_only': subfeed_only,
                 'indexed_at': parser.parse(record.created_at),
             }
             posts_to_create.append(post_dict)
 
-            if discoverable:
-                logger.info(
-                    f'NEW POST '
-                    f'[CREATED_AT={record.created_at}]'
-                    f'[AUTHOR={author}]'
-                    f'[WITH_IMAGE={post_with_images}]'
-                    f'[WITH_VIDEO={post_with_video}]'
-                    f': {inlined_text}'
-                )
+            #if discoverable:
+            logger.info(
+                f'NEW POST '
+                f'[CREATED_AT={record.created_at}]'
+                f'[AUTHOR={author}]'
+                f'[WITH_IMAGE={post_with_images}]'
+                f'[WITH_VIDEO={post_with_video}]'
+                f': {inlined_text}'
+            )
 
     posts_to_delete = ops[models.ids.AppBskyFeedPost]['deleted']
     if posts_to_delete:

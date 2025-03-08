@@ -5,10 +5,10 @@ from queue import Queue
 import time
 import sqlalchemy
 
-from server.database import Session, FeedUser, UserList
+from server.database import Session, FeedUser, UserList, Subfeed
 from server import data_stream, config
 from server.logger import logger
-from server.data_filter import operations_callback, feed_users_dict, user_lists_dict
+from server.data_filter import operations_callback, feed_users_dict, user_lists_dict, subfeeds_dict
 
 
 def reload_on_timer(lock, stream_stop_event=None):
@@ -24,9 +24,16 @@ def reload_on_timer(lock, stream_stop_event=None):
         user_lists = thread_session.scalars(stmt).all()
         all_list_subjects = list(set([row.subscribes_to_did for row in user_lists]))
 
+        stmt = sqlalchemy.select(Subfeed)
+        subfeeds = thread_session.scalars(stmt).all()
+        #all_subfeeds = {row.id: row.feed_name for row in session.scalars(stmt).all()}
+
         with lock:
             for k, v in {row.did: row.id for row in feed_users}.items():
                 feed_users_dict[k] = v
+
+            for k, v in {row.id: row.feed_name for row in subfeeds}.items():
+                subfeeds_dict[k] = v
 
             for k in user_lists_dict:
                 if not k in all_list_subjects:
@@ -35,7 +42,7 @@ def reload_on_timer(lock, stream_stop_event=None):
             for k in all_list_subjects:
                 user_lists_dict[k] = ''                
 
-        time.sleep(300)
+        time.sleep(120)
 
 
 def sigint_handler(*_):
