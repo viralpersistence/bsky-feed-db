@@ -3,7 +3,7 @@ from typing import Optional
 
 from server import config
 from server.logger import logger
-from server.client import client
+from server.utils import get_or_add_user
 
 import sqlalchemy
 from server.database import session, Post#, User, Follows
@@ -11,7 +11,7 @@ from server.database import session, Post#, User, Follows
 uri = config.DISCOVER_FEED_URI
 CURSOR_EOF = 'eof'
 
-
+'''
 def get_follows(requester_did: str) -> list:
     res = client.get_follows(requester_did)
     follows_cursor = res.cursor
@@ -23,6 +23,7 @@ def get_follows(requester_did: str) -> list:
         all_followed_dids += [elem['did'] for elem in res.follows]
 
     return all_followed_dids
+'''
 
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
@@ -38,11 +39,32 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
         add_user(requester_did)
     '''
 
-    all_followed_dids = get_follows(requester_did)
-    logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
+    #all_followed_dids = get_follows(requester_did)
+    #logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
 
     #stmt = sqlalchemy.select(Post).where(Post.discoverable and Post.reply_root is None and Post.reply_parent is None and not Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    stmt = sqlalchemy.select(Post).filter(Post.discoverable).where(Post.did.not_in(all_followed_dids)).order_by(Post.indexed_at.desc()).limit(limit)
+    #stmt = sqlalchemy.select(Post).filter(Post.discoverable).where(Post.did.not_in(all_followed_dids)).order_by(Post.indexed_at.desc()).limit(limit)
+    #posts = session.scalars(stmt).all()
+
+    user = get_or_add_user(requester_did)
+
+    stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user_id)
+    userfollows_dids = [uf.follows_did for uf in session.scalars(stmt).all()]
+
+    if user.replies_off:
+        where_stmt = and_(
+            Post.discoverable == 1,
+            Post.did.not_in(userfollows_dids),
+            Post.reply_parent == None,
+            Post.reply_root == None,
+        )
+    else:
+        where_stmt = and_(
+            Post.discoverable == 1,
+            Post.did.not_in(userfollows_dids),
+        )
+
+    stmt = sqlalchemy.select(Post).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
 
 

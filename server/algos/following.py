@@ -1,17 +1,16 @@
 from datetime import datetime
 from typing import Optional
+import sqlalchemy
 
 from server import config
 from server.logger import logger
-from server.client import client
-
-import sqlalchemy
 from server.database import session, Post#, User, Follows
+from server.utils import get_or_add_user
 
 uri = config.FOLLOWING_FEED_URI
 CURSOR_EOF = 'eof'
 
-
+'''
 def get_follows(requester_did: str) -> list:
     res = client.get_follows(requester_did)
     follows_cursor = res.cursor
@@ -23,6 +22,7 @@ def get_follows(requester_did: str) -> list:
         all_followed_dids += [elem['did'] for elem in res.follows]
 
     return all_followed_dids
+'''
 
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
@@ -38,11 +38,29 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
         add_user(requester_did)
     '''
 
-    all_followed_dids = get_follows(requester_did)
-    logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
+    #all_followed_dids = get_follows(requester_did)
+    #logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
 
     #stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.indexed_at.desc()).limit(limit)
+    #stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.indexed_at.desc()).limit(limit)
+    #posts = session.scalars(stmt).all()
+
+    user = get_or_add_user(requester_did)
+
+    if user.replies_off:
+        where_stmt = and_(
+            Post.userlist_only == 0,
+            UserFollows.user_id == user_id,
+            Post.reply_parent == None,
+            Post.reply_root == None
+        )
+    else:
+        where_stmt = and_(
+            Post.userlist_only == 0,
+            UserFollows.user_id == user_id
+        )
+
+    stmt = sqlalchemy.select(Post).join(UserFollows, Post.did == UserFollows.follows_did).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
 
 
