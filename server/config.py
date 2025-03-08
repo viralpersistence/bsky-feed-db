@@ -43,6 +43,7 @@ if not FEED_URI:
 FOLLOWING_FEED_URI = os.environ.get('FOLLOWING_FEED_URI')
 DISCOVER_FEED_URI = os.environ.get('DISCOVER_FEED_URI')
 LINKS_FEED_URI = os.environ.get('LINKS_FEED_URI')
+SECRET_FEED_URI = os.environ.get('SECRET_FEED_URI')
 
 def _get_bool_env_var(value: str) -> bool:
     if value is None:
