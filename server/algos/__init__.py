@@ -1,8 +1,8 @@
-from . import following, discover, links
+from . import following, discover, links, secret
 
 algos = {
-    #feed.uri: feed.handler
     following.uri: following.handler,
     discover.uri: discover.handler,
     links.uri: links.handler,
+    secret.uri: secret.handler,
 }

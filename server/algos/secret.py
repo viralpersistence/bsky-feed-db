@@ -26,7 +26,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
         where_stmt = UserList.user_id == user.id
 
 
-    stmt = sqlalchemy.select(Post).join(UserList, Post.did == UserList.subscribes_to_did).where(where_stmt).order_by(Post.indexed_at.desc()).limit(15)
+    stmt = sqlalchemy.select(Post).join(UserList, Post.did == UserList.subscribes_to_did).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)
 
     posts = session.scalars(stmt).all()
 

@@ -105,7 +105,7 @@ def main() -> None:
                 bsky_client.app.bsky.notification.update_seen({'seen_at': bsky_client.get_current_time_iso()})
 
 
-        time.sleep(60)
+        time.sleep(30)
 
 
 if __name__ == '__main__':
