@@ -102,10 +102,10 @@ def main() -> None:
                     reply_to=models.AppBskyFeedPost.ReplyRef(parent=reply_ref, root=reply_root),
                 )
 
-                bsky_client.app.bsky.notification.update_seen({'seen_at': client.get_current_time_iso()})
+                bsky_client.app.bsky.notification.update_seen({'seen_at': bsky_client.get_current_time_iso()})
 
 
-        time.sleep(10)
+        time.sleep(60)
 
 
 if __name__ == '__main__':
