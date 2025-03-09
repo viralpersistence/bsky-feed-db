@@ -122,7 +122,7 @@ def _run(name, operations_callback, ts, stream_stop_event=None):
             #db.execute("""UPDATE subscriptionstate SET cursor=(?) WHERE name=(?);""", (commit.seq, name))
             stmt = sqlalchemy.update(SubscriptionState).where(SubscriptionState.service == name).values(cursor=str(commit.seq))
             session.execute(stmt)
-            #session.commit()
+            session.commit()
 
 
         if not commit.blocks:
