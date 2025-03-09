@@ -98,7 +98,7 @@ def operations_callback(ops: defaultdict) -> None:
 
     if userfollows_to_create:
         session.execute(sqlalchemy.insert(UserFollows), userfollows_to_create)
-        session.commit()
+        #session.commit()
         logger.info(f'Added to userfollows: {len(userfollows_to_create)}')
 
     userfollows_to_delete = ops[models.ids.AppBskyGraphFollow]['deleted']
@@ -107,7 +107,7 @@ def operations_callback(ops: defaultdict) -> None:
 
         stmt = sqlalchemy.delete(UserFollows).where(UserFollows.uri.in_(userfollows_uris_to_delete))
         session.execute(stmt)
-        session.commit()
+        #session.commit()
 
         logger.info(f'Deleted from userfollows: {len(userfollows_uris_to_delete)}')
     
@@ -206,11 +206,11 @@ def operations_callback(ops: defaultdict) -> None:
 
         stmt = sqlalchemy.delete(Post).where(Post.uri.in_(post_uris_to_delete))
         session.execute(stmt)
-        session.commit()
+        #session.commit()
 
         logger.info(f'Deleted from feed: {len(post_uris_to_delete)}')
 
     if posts_to_create:
         session.execute(sqlalchemy.insert(Post), posts_to_create)
         logger.info(f'Added to feed: {len(posts_to_create)}')
-        session.commit()
+        #session.commit()

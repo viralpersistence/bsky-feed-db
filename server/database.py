@@ -11,11 +11,11 @@ class Post(Base):
     __tablename__ = "post"
 
     id = Column("id", Integer, nullable=False, primary_key=True)
-    uri = Column("uri", String, index=True, nullable=False)
-    cid = Column("cid", String, nullable=False)
-    did = Column("did", String, nullable=False)
-    reply_parent = Column("reply_parent", String)
-    reply_root = Column("reply_root", String)
+    uri = Column("uri", String(255), index=True, nullable=False)
+    cid = Column("cid", String(255), nullable=False)
+    did = Column("did", String(255), nullable=False)
+    reply_parent = Column("reply_parent", String(255))
+    reply_root = Column("reply_root", String(255))
     discoverable = Column("discoverable", Boolean, nullable=False, default=False)
     has_link = Column("has_link", Boolean, nullable=False, default=False)
     link_only = Column("link_only", Boolean, nullable=False, default=False)
@@ -29,15 +29,16 @@ class SubscriptionState(Base):
     __tablename__ = 'subscriptionstate'
 
     id = Column("id", Integer, nullable=False, primary_key=True)
-    service = Column("service", String, nullable=False, unique=True)
-    cursor = Column("cursor", Integer, nullable=False)
+    service = Column("service", String(255), nullable=False, unique=True)
+    #cursor = Column("cursor", Integer, nullable=False)
+    cursor = Column("cursor", String(255), nullable=False)
 
 
 class FeedUser(Base):
     __tablename__ = 'feeduser'
 
     id = Column("id", Integer, nullable=False, primary_key=True)
-    did = Column("did", String, index=True, nullable=False, unique=True)
+    did = Column("did", String(255), index=True, nullable=False, unique=True)
     replies_off = Column("replies_off", Boolean, nullable=False, default=False)
 
 
@@ -47,10 +48,10 @@ class UserFollows(Base):
     id = Column("id", Integer, nullable=False, primary_key=True)
 
     user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
-    #did = Column("did", String, index=True, nullable=False)
+    #did = Column("did", String(255), index=True, nullable=False)
 
-    follows_did = Column("follows_did", String, nullable=False)
-    uri = Column("uri", String, index=True, nullable=False)
+    follows_did = Column("follows_did", String(255), nullable=False)
+    uri = Column("uri", String(255), index=True, nullable=False)
 
 
 class UserList(Base):
@@ -58,7 +59,7 @@ class UserList(Base):
 
     id = Column("id", Integer, nullable=False, primary_key=True)
     user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
-    subscribes_to_did = Column("subscribes_to_did", String, nullable=False)
+    subscribes_to_did = Column("subscribes_to_did", String(255), nullable=False)
 
 
 
@@ -66,7 +67,7 @@ class Subfeed(Base):
     __tablename__ = 'subfeed'
 
     id = Column("id", Integer, nullable=False, primary_key=True)
-    feed_name = Column("feed_name", String, nullable=False, unique=True)
+    feed_name = Column("feed_name", String(255), nullable=False, unique=True)
 
 
 class SubfeedMember(Base):
@@ -91,8 +92,8 @@ class Follows(Base):
     __tablename__ = 'follows'
 
     id = Column("id", Integer, nullable=False, primary_key=True)
-    did = Column("did", String, ForeignKey(User.did), index=True, nullable=False)
-    follows_did = Column("follows_did", String, nullable=False)
+    did = Column("did", String(255), ForeignKey(User.did), index=True, nullable=False)
+    follows_did = Column("follows_did", String(255), nullable=False)
 '''
 
 all_table_names = (
@@ -105,12 +106,16 @@ all_table_names = (
     "subfeedmember"
 )
 
-
-db_path = '/home/yocissms/bsky-feed-db/test.db'
+'''
+db_path = ''
 engine = sqlalchemy.create_engine("sqlite:///"+db_path)
 Session = sessionmaker(engine)
 session = Session()
+'''
 
+engine = sqlalchemy.create_engine(config.MYSQL_CONN_STRING)
+Session = sessionmaker(engine)
+session = Session()
 
 '''
 engine = sqlalchemy.create_engine(config.SQLITE_CONN_STRING)

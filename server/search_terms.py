@@ -24,6 +24,8 @@ KEYWORDS = [
     'pwlc', 
     'pwme', 
     'thereforme',
+    'severeme',
+    'verysevereme',
 ]
 
 HASHTAG_KEYWORDS = ['#' + word for word in KEYWORDS]
@@ -44,7 +46,7 @@ EXPANDED_KEYWORDS = [
     'eds', 
     'ehlers-danlos', 
     'endometriosis', 
-    'energy', 
+    #'energy', 
     'gastroparesis', 
     'hypermobile', 
     'hypermobility', 

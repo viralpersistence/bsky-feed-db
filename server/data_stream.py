@@ -78,7 +78,7 @@ def _run(name, operations_callback, ts, stream_stop_event=None):
     if rows:
         #params = models.ComAtprotoSyncSubscribeRepos.Params(cursor=state.cursor)
         #print(dir(rows[0]))
-        params = models.ComAtprotoSyncSubscribeRepos.Params(cursor=rows[0].cursor)
+        params = models.ComAtprotoSyncSubscribeRepos.Params(cursor=int(rows[0].cursor))
 
     client = FirehoseSubscribeReposClient(params)
 
@@ -86,7 +86,7 @@ def _run(name, operations_callback, ts, stream_stop_event=None):
     #    SubscriptionState.create(service=name, cursor=0)
 
     if not rows:
-        stmt = sqlalchemy.insert(SubscriptionState).values(service=name, cursor=0)
+        stmt = sqlalchemy.insert(SubscriptionState).values(service=name, cursor=str(0))
         session.execute(stmt)
         session.commit()
         #db.execute("""INSERT INTO subscriptionstate (service, cursor) VALUES (?,?);""", (name, 0))
@@ -120,9 +120,9 @@ def _run(name, operations_callback, ts, stream_stop_event=None):
             
             #SubscriptionState.update(cursor=commit.seq).where(SubscriptionState.service == name).execute()
             #db.execute("""UPDATE subscriptionstate SET cursor=(?) WHERE name=(?);""", (commit.seq, name))
-            stmt = sqlalchemy.update(SubscriptionState).where(SubscriptionState.service == name).values(cursor=commit.seq)
+            stmt = sqlalchemy.update(SubscriptionState).where(SubscriptionState.service == name).values(cursor=str(commit.seq))
             session.execute(stmt)
-            session.commit()
+            #session.commit()
 
 
         if not commit.blocks:

@@ -10,7 +10,7 @@ load_dotenv()
 SERVICE_DID = os.environ.get('SERVICE_DID')
 HOSTNAME = os.environ.get('HOSTNAME')
 FLASK_RUN_FROM_CLI = os.environ.get('FLASK_RUN_FROM_CLI')
-SQLITE_CONN_STRING = os.environ.get('SQLITE_CONN_STRING')
+MYSQL_CONN_STRING = os.environ.get('MYSQL_CONN_STRING')
 HANDLE = os.environ.get('HANDLE')
 PASSWORD = os.environ.get('PASSWORD')
 
@@ -20,8 +20,8 @@ if FLASK_RUN_FROM_CLI:
 if not HOSTNAME:
     raise RuntimeError('You should set "HOSTNAME" environment variable first.')
 
-if not SQLITE_CONN_STRING:
-    raise RuntimeError('You should set "SQLITE_CONN_STRING" environment variable first.')
+if not MYSQL_CONN_STRING:
+    raise RuntimeError('You should set "MYSQL_CONN_STRING" environment variable first.')
 
 if not HANDLE:
     raise RuntimeError('You should set "HANDLE" environment variable first.')
