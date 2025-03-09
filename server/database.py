@@ -18,6 +18,7 @@ class Post(Base):
     reply_root = Column("reply_root", String)
     discoverable = Column("discoverable", Boolean, nullable=False, default=False)
     has_link = Column("has_link", Boolean, nullable=False, default=False)
+    link_only = Column("link_only", Boolean, nullable=False, default=False)
     userlist_only = Column("userlist_only", Boolean, nullable=False, default=False)
     subfeed_only = Column("subfeed_only", Integer)
     indexed_at = Column(DateTime, default=datetime.utcnow, nullable=False)

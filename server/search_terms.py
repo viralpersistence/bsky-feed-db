@@ -119,7 +119,7 @@ LINK_TERMS = [
 ]
 
 SUBFEED_TERMS = {
-    'mutual-aid': {
+    'mutualaid': {
         'terms': ['bill', 'bills', 'cash', 'cashapp', 'donate', 'donation', 'helpsky', 'fundraise', 'fundraiser', 'fundraising', 'gofundme', 'mutualaid', 'paypal', 'rent', 'venmo'],
         'bigrams': ['mutual aid'],
     }
@@ -142,6 +142,8 @@ def post_contains_link_term(record):
 
 
 def post_contains_subfeed_term(record, subfeed_name):
+    if subfeed_name not in SUBFEED_TERMS:
+        return False
     text_words = [word.lower().strip(punctuation) for word in record.text.split()]
     text_bigrams = [text_words[i] + ' ' + text_words[i+1] for i in range(len(text_words) - 1)]
 

@@ -3,7 +3,7 @@ import sqlalchemy
 from atproto import models
 from string import punctuation
 from server.client import bsky_client
-from server.database import session, Feed, FeedMember
+from server.database import session, Subfeed, SubfeedMember
 from server.utils import get_or_add_user
 
 # script to update feed members and settings based on notifications
@@ -14,7 +14,7 @@ SUBFEED_CMDS = {
     'RemoveFrom': 'remove',
 }
 
-stmt = sqlalchemy.select(Feed)
+stmt = sqlalchemy.select(Subfeed)
 SUBFEED_NAMES = {row.feed_name: row for row in session.scalars(stmt).all()}
 
 
@@ -26,7 +26,7 @@ SETTING_CMDS = {
     'RepliesOff'.lower(): ('replies_off', True, 'Feeds will no longer include replies.')
 }
 
-#print(SUBFEED_CMD_DICT)
+print(SUBFEED_CMD_DICT)
 
 
 def post_contains_cmd(record):
@@ -65,27 +65,31 @@ def main() -> None:
                 user_did = notification.author.did
                 feed_user = get_or_add_user(user_did)
 
+                print(feed_user)
+
                 messages = []
 
                 if 'add' in feed_cmds:
-                    stmt = sqlalchemy.select(FeedMember)
+                    stmt = sqlalchemy.select(SubfeedMember)
                     feed_members = [row for row in session.scalars(stmt).all()]
 
                     feed_members_to_create = []
 
                     for feed in feed_cmds['add']:
-                        if any([fm.user_id == feed_user.id and fm.feed_id == feed.id for fm in feed_members]):
+                        print(feed)
+                        if any([fm.user_id == feed_user.id and fm.subfeed_id == feed.id for fm in feed_members]):
                             messages.append(f'You are already a member of {feed.feed_name}.')
                         else:
-                            feed_members_to_create.append({'user_id': feed_user.id, 'feed_id': feed.id})
+                            feed_members_to_create.append({'user_id': feed_user.id, 'subfeed_id': feed.id})
                             messages.append(f'Added to {feed.feed_name}.')
 
                     if feed_members_to_create:
-                        session.execute(sqlalchemy.insert(FeedMember), feed_members_to_create)
+                        print(feed_members_to_create)
+                        session.execute(sqlalchemy.insert(SubfeedMember), feed_members_to_create)
 
                 if 'remove' in feed_cmds:
                     feeds_to_remove_from = [feed.id for feed in feed_cmds['remove']]
-                    stmt = sqlalchemy.delete(FeedMember).where(sqlalchemy.and_(FeedMember.user_id == feed_user.id, FeedMember.feed_id.in_(feeds_to_remove_from)))
+                    stmt = sqlalchemy.delete(SubfeedMember).where(sqlalchemy.and_(SubfeedMember.user_id == feed_user.id, SubfeedMember.subfeed_id.in_(feeds_to_remove_from)))
                     session.execute(stmt)
                     messages += [f'Removed from {feed.feed_name}' for feed in feed_cmds['remove']]
 

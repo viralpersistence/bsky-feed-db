@@ -137,9 +137,12 @@ def operations_callback(ops: defaultdict) -> None:
 
         should_appear, discoverable = post_contains_any(record)
 
-        if post_with_external and not should_appear:
-            should_appear = post_contains_link_term(record)
+        link_only = False
 
+        if post_with_external and not should_appear:
+            if post_contains_link_term(record):
+                should_appear = True
+                link_only = True
         #userlist_only = not should_appear
 
         
@@ -178,6 +181,7 @@ def operations_callback(ops: defaultdict) -> None:
                 'did': author,
                 'discoverable': discoverable,
                 'has_link': post_with_external,
+                'link_only': link_only,
                 'userlist_only': userlist_only,
                 'subfeed_only': subfeed_only,
                 'indexed_at': parser.parse(record.created_at),
