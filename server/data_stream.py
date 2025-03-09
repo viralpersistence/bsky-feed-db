@@ -88,6 +88,7 @@ def _run(name, operations_callback, ts, stream_stop_event=None):
     if not rows:
         stmt = sqlalchemy.insert(SubscriptionState).values(service=name, cursor=0)
         session.execute(stmt)
+        session.commit()
         #db.execute("""INSERT INTO subscriptionstate (service, cursor) VALUES (?,?);""", (name, 0))
 
     def on_message_handler(message: firehose_models.MessageFrame) -> None:
@@ -121,6 +122,7 @@ def _run(name, operations_callback, ts, stream_stop_event=None):
             #db.execute("""UPDATE subscriptionstate SET cursor=(?) WHERE name=(?);""", (commit.seq, name))
             stmt = sqlalchemy.update(SubscriptionState).where(SubscriptionState.service == name).values(cursor=commit.seq)
             session.execute(stmt)
+            session.commit()
 
 
         if not commit.blocks:

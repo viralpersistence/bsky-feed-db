@@ -1,5 +1,5 @@
 from datetime import datetime
-import sqlitecloud
+#import sqlitecloud
 from server import config
 import sqlalchemy
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
@@ -100,29 +100,23 @@ all_table_names = (
     "subscriptionstate",
     "feeduser",
     "userfollows",
-    #"userlistpost",
     "userlist",
     "subfeed",
     "subfeedmember"
 )
 
 
+db_path = '/home/yocissms/bsky-feed-db/test.db'
+engine = sqlalchemy.create_engine("sqlite:///"+db_path)
+Session = sessionmaker(engine)
+session = Session()
+
+
+'''
 engine = sqlalchemy.create_engine(config.SQLITE_CONN_STRING)
 Session = sessionmaker(bind=engine)
 session = Session()
+'''
 
-#if not all([sqlalchemy.inspect(engine).has_table(table_name) for table_name in ("subscriptionstate","post","user","follows")]):
 if not all([sqlalchemy.inspect(engine).has_table(table_name) for table_name in all_table_names]):
     Base.metadata.create_all(engine)
-
-#print(sqlalchemy.inspect(engine).has_table("post"))
-#print(sqlalchemy.inspect(engine).has_table("subscriptionstate"))
-
-'''
-if __name__ == '__main__':
-    # drop tables
-    Post.__table__.drop(engine)
-    SubscriptionState.__table__.drop(engine)
-    Follows.__table__.drop(engine)
-    User.__table__.drop(engine)
-'''

@@ -74,6 +74,7 @@ def get_or_add_user(requester_did: str) -> int:
 
         if follows:
             session.execute(sqlalchemy.insert(UserFollows), follows)
+            session.commit()
 
         if 'cursor' in follows_batch:
             cursor = follows_batch['cursor']

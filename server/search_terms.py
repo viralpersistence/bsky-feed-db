@@ -100,7 +100,9 @@ LINK_TERMS = [
     'ebv', 
     'fatigue', 
     'flu', 
-    'gene', 
+    'genetic',
+    'genes',
+    'genomic', 
     'headache', 
     'hhs', 
     'infection', 
@@ -113,7 +115,7 @@ LINK_TERMS = [
     'research', 
     'rna', 
     'sars-cov-2', 
-    'sleep', 
+    #'sleep', 
     'virus', 
     'viruses'
 ]
