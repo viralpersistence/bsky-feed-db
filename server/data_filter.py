@@ -117,6 +117,10 @@ def operations_callback(ops: defaultdict) -> None:
         author = created_post['author']
         record = created_post['record']
 
+        if type(record) == int:
+            print('????????????')
+            print(created_post)
+
         post_with_images = isinstance(record.embed, models.AppBskyEmbedImages.Main)
         post_with_video = isinstance(record.embed, models.AppBskyEmbedVideo.Main)
         post_with_external = isinstance(record.embed, models.AppBskyEmbedExternal.Main)
