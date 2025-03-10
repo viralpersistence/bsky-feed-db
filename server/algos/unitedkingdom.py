@@ -23,7 +23,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     user = get_or_add_user(requester_did)
 
-    stmt = sqlalchemy.select(SubfeedMember).filter(SubfeedMember.feed_id == subfeed_id)  
+    stmt = sqlalchemy.select(SubfeedMember).filter(SubfeedMember.subfeed_id == subfeed_id)  
     member_ids = [fm.user_id for fm in session.scalars(stmt).all()]
 
 
