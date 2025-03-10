@@ -86,11 +86,14 @@ def main() -> None:
                     if feed_members_to_create:
                         print(feed_members_to_create)
                         session.execute(sqlalchemy.insert(SubfeedMember), feed_members_to_create)
+                        session.commit()
+
 
                 if 'remove' in feed_cmds:
                     feeds_to_remove_from = [feed.id for feed in feed_cmds['remove']]
                     stmt = sqlalchemy.delete(SubfeedMember).where(sqlalchemy.and_(SubfeedMember.user_id == feed_user.id, SubfeedMember.subfeed_id.in_(feeds_to_remove_from)))
                     session.execute(stmt)
+                    session.commit()
                     messages += [f'Removed from {feed.feed_name}' for feed in feed_cmds['remove']]
 
                 for col_name, value, message in setting_cmds:

@@ -27,28 +27,6 @@ def get_or_add_user(requester_did: str) -> int:
     user = FeedUser(did=requester_did)
     session.add(user)
     session.commit()
-    #print(user.id)
-
-    #logger.info(f'Added to feeduser: {requester_did}')
-
-    '''
-    res = requests.get(
-        "https://bsky.social/xrpc/com.atproto.repo.listRecords", 
-        params={
-            "repo": requester_did, 
-            "collection": "app.bsky.graph.follow",
-            "limit": 100,
-        }
-    )
-    '''
-
-    '''
-    # add user settings
-
-    user_setting = UserSetting(user_id=user.id, setting_name="replies_off")
-    session.add(user_setting)
-    session.commit()
-    '''
 
     # add user follows
     #all_follows = []
