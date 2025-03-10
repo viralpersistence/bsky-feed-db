@@ -42,6 +42,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     if user.replies_off:
         where_stmt = and_(
             Post.userlist_only == 0,
+            Post.subfeed_only == None,
             or_(
                 Post.did.in_(userfollows_dids),
                 Post.discoverable == 1,
@@ -53,6 +54,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     else:
         where_stmt = and_(
             Post.userlist_only == 0,
+            Post.subfeed_only == None,
             or_(
                 Post.did.in_(userfollows_dids),
                 Post.discoverable == 1,

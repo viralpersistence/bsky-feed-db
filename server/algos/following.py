@@ -50,14 +50,18 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     if user.replies_off:
         where_stmt = and_(
+            Post.link_only == 0,
             Post.userlist_only == 0,
+            Post.subfeed_only == None,
             UserFollows.user_id == user.id,
             Post.reply_parent == None,
             Post.reply_root == None
         )
     else:
         where_stmt = and_(
+            Post.link_only == 0,
             Post.userlist_only == 0,
+            Post.subfeed_only == None,
             UserFollows.user_id == user.id
         )
 
