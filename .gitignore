@@ -2,6 +2,8 @@ test_db.py
 automated_message_response.py
 nohup.out
 drop_duplicates.py
+beta_testing.py
+test_new_db.py
 
 .DS_Store
 .idea

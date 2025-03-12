@@ -1,10 +1,11 @@
 import time
 import sqlalchemy
-from atproto import models
+from atproto import models, Client
 from string import punctuation
-from server.client import bsky_client
+#from server.client import bsky_client
 from server.database import session, Subfeed, SubfeedMember
 from server.utils import get_or_add_user
+from server import config
 
 # script to update feed members and settings based on notifications
 
@@ -48,6 +49,9 @@ def post_contains_cmd(record):
 
 def main() -> None:
     while True:
+        bsky_client = Client("https://bsky.social")
+        bsky_client.login(config.HANDLE, config.PASSWORD)
+
         response = bsky_client.app.bsky.notification.list_notifications()
         for notification in response.notifications:
             if notification.reason == 'mention' and not notification.is_read:
@@ -110,7 +114,6 @@ def main() -> None:
                 )
 
                 bsky_client.app.bsky.notification.update_seen({'seen_at': bsky_client.get_current_time_iso()})
-
 
         time.sleep(30)
 
