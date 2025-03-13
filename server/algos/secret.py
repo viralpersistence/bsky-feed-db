@@ -14,6 +14,11 @@ CURSOR_EOF = 'eof'
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
+    return {
+        'cursor': CURSOR_EOF,
+        'feed': []
+    }
+
     user = get_or_add_user(requester_did)
 
     if user.replies_off:

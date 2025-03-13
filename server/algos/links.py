@@ -15,6 +15,11 @@ CURSOR_EOF = 'eof'
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
+    return {
+        'cursor': CURSOR_EOF,
+        'feed': []
+    }
+
     #stmt = sqlalchemy.select(Post).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
     #posts = session.scalars(stmt).all()
 

@@ -1,5 +1,6 @@
 import time
 import sqlalchemy
+import asyncio
 from atproto import models, Client
 from string import punctuation
 #from server.client import bsky_client
@@ -48,9 +49,9 @@ def post_contains_cmd(record):
 
 
 def main() -> None:
+    bsky_client = Client("https://bsky.social")
+    bsky_client.login(config.HANDLE, config.PASSWORD)
     while True:
-        bsky_client = Client("https://bsky.social")
-        bsky_client.login(config.HANDLE, config.PASSWORD)
 
         response = bsky_client.app.bsky.notification.list_notifications()
         for notification in response.notifications:

@@ -21,6 +21,11 @@ subfeed_id = [row.id for row in session.scalars(stmt).all() if row.feed_name == 
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
+    return {
+        'cursor': CURSOR_EOF,
+        'feed': []
+    }
+
     user = get_or_add_user(requester_did)
 
     stmt = sqlalchemy.select(SubfeedMember).filter(SubfeedMember.subfeed_id == subfeed_id)  

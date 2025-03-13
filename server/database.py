@@ -1,9 +1,66 @@
 from datetime import datetime
+from server import config
+import peewee
+
+db = peewee.MySQLDatabase(config.DB_NAME, user=config.DB_USER, password=config.DB_PASSWORD, host=config.DB_HOST, port=int(config.DB_PORT))
+
+
+class BaseModel(peewee.Model):
+    class Meta:
+        database = db
+
+class Post(BaseModel):
+    uri = peewee.CharField(index=True, unique=True)
+    cid = peewee.CharField()
+    did = peewee.CharField()
+    reply_parent = peewee.CharField(null=True, default=None)
+    reply_root = peewee.CharField(null=True, default=None)
+
+    discoverable = peewee.BooleanField(default=False)
+    has_link = peewee.BooleanField(default=False)
+    link_only = peewee.BooleanField(default=False)
+    userlist_only = peewee.BooleanField(default=False)
+    subfeed_only = peewee.IntegerField(null=True)
+
+    indexed_at = peewee.DateTimeField(default=datetime.utcnow)
+
+
+class SubscriptionState(BaseModel):
+    service = peewee.CharField(unique=True)
+    cursor = peewee.BigIntegerField()
+
+class FeedUser(BaseModel):
+    did = peewee.CharField(unique=True, index=True)
+    replies_off = peewee.BooleanField(default=False)
+
+class UserFollows(BaseModel):
+    feeduser = peewee.ForeignKeyField(FeedUser, backref='follows')
+    follows_did = peewee.CharField()
+    uri = peewee.CharField(unique=True)
+
+class UserList(BaseModel):
+    feeduser = peewee.ForeignKeyField(FeedUser, backref='subscribes')
+    subscribes_to_did = peewee.CharField()
+
+class Subfeed(BaseModel):
+    feed_name = peewee.CharField(unique=True)
+
+class SubfeedMember(BaseModel):
+    feeduser = peewee.ForeignKeyField(FeedUser, backref='subfeeds')
+    subfeed = peewee.ForeignKeyField(Subfeed, backref='members')
+
+if db.is_closed():
+    db.connect()
+    db.create_tables([Post, SubscriptionState, FeedUser, UserFollows, UserList, Subfeed, SubfeedMember])
+
+'''
+from datetime import datetime
 #import sqlitecloud
 from server import config
 import sqlalchemy
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
+
 
 Base = declarative_base()
 
@@ -77,24 +134,6 @@ class SubfeedMember(Base):
     user_id = Column("user_id", Integer, ForeignKey(FeedUser.id), nullable=False)
     subfeed_id = Column("subfeed_id", Integer, ForeignKey(Subfeed.id), nullable=False)
 
-'''
-class SubfeedPost(Base):
-    __tablename__ = 'subfeedpost'
-
-    id = Column("id", Integer, nullable=False, primary_key=True)
-    post_id = Column("post_id", Integer, ForeignKey(Post.id), nullable=False)
-    subfeed_id = Column("subfeed_id", Integer, ForeignKey(Subfeed.id), nullable=False)
-'''
-
-
-'''
-class Follows(Base):
-    __tablename__ = 'follows'
-
-    id = Column("id", Integer, nullable=False, primary_key=True)
-    did = Column("did", String(255), ForeignKey(User.did), index=True, nullable=False)
-    follows_did = Column("follows_did", String(255), nullable=False)
-'''
 
 all_table_names = (
     "post",
@@ -106,22 +145,12 @@ all_table_names = (
     "subfeedmember"
 )
 
-'''
-db_path = ''
-engine = sqlalchemy.create_engine("sqlite:///"+db_path)
-Session = sessionmaker(engine)
-session = Session()
-'''
 
 engine = sqlalchemy.create_engine(config.MYSQL_CONN_STRING)
 Session = sessionmaker(engine)
 session = Session()
 
-'''
-engine = sqlalchemy.create_engine(config.SQLITE_CONN_STRING)
-Session = sessionmaker(bind=engine)
-session = Session()
-'''
 
 if not all([sqlalchemy.inspect(engine).has_table(table_name) for table_name in all_table_names]):
     Base.metadata.create_all(engine)
+'''
