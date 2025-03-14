@@ -6,7 +6,7 @@ import requests
 from server.database import db, FeedUser, UserFollows
 
 @db.atomic()
-def add_user(requester_did: str) -> int:
+def add_user(requester_did):
     feed_user = FeedUser.create(did=requester_did)
 
     print(feed_user)
@@ -47,13 +47,23 @@ def add_user(requester_did: str) -> int:
 
 
 
-def get_or_add_user(requester_did: str) -> int:
+def get_or_add_user(requester_did):
+    if db.is_closed():
+        db.connect()
+        
     try:
         user = add_user(requester_did)
     except peewee.IntegrityError:
         user = FeedUser.get(FeedUser.did == requester_did)
     return user
 
+'''
+def get_or_add_from_script(requester_did):
+    if db.is_closed():
+        db.connect()
+
+    return get_or_add_user(requester_did)
+'''
     
     
 
