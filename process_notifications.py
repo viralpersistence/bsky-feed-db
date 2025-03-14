@@ -54,93 +54,93 @@ def post_contains_cmd(record):
 def main() -> None:
     bsky_client = Client("https://bsky.social")
     bsky_client.login(config.HANDLE, config.PASSWORD)
-    while True:
+    #while True:
 
-        response = bsky_client.app.bsky.notification.list_notifications()
-        for notification in response.notifications:
-            if notification.reason == 'mention' and not notification.is_read:
-            
-                record = notification.record
-                root_uri = record.reply.root.uri if record.reply else notification.uri
-                root_cid = record.reply.root.cid if record.reply else notification.cid
-
-
-                feed_cmds, setting_cmds = post_contains_cmd(record)
-
-                if not (feed_cmds or setting_cmds):
-                    continue
-
-                user_did = notification.author.did
-                feed_user = get_or_add_user(user_did)
-
-                print(feed_user)
-
-                messages = []
-
-                if 'add' in feed_cmds:
-                    #stmt = sqlalchemy.select(SubfeedMember)
-                    #feed_members = [row for row in session.scalars(stmt).all()]
-
-                    feed_members = SubfeedMember.select()
-
-                    feed_members_to_create = []
-
-                    for feed in feed_cmds['add']:
-                        print(feed)
-
-                        if any([fm.feeduser_id == feed_user.id and fm.subfeed_id == feed.id for fm in feed_members]):
-                            messages.append(f'You are already a member of {feed.feed_name}.')
-                        else:
-                            feed_members_to_create.append({'feeduser_id': feed_user.id, 'subfeed_id': feed.id})
-                            messages.append(f'Added to {feed.feed_name}.')
-
-                    if feed_members_to_create:
-                        print(feed_members_to_create)
-                        #session.execute(sqlalchemy.insert(SubfeedMember), feed_members_to_create)
-                        #session.commit()
-
-                        with db.atomic():
-                            for fm_dict in feed_members_to_create:
-                                SubfeedMember.create(**fm_dict)
-
-
-                if 'remove' in feed_cmds:
-                    feeds_to_remove_from = [feed.id for feed in feed_cmds['remove']]
-                    #stmt = sqlalchemy.delete(SubfeedMember).where(sqlalchemy.and_(SubfeedMember.user_id == feed_user.id, SubfeedMember.subfeed_id.in_(feeds_to_remove_from)))
-                    #session.execute(stmt)
-                    #session.commit()
-
-                    #print('...')
-                    #print(feeds_to_remove_from)
-
-                    #q = SubfeedMember.select().where( (SubfeedMember.feeduser_id == feed_user.id) & (SubfeedMember.subfeed_id.in_(feeds_to_remove_from)) )
-                    #print(len(q))
-
+    response = bsky_client.app.bsky.notification.list_notifications()
+    for notification in response.notifications:
+        if notification.reason == 'mention' and not notification.is_read:
         
+            record = notification.record
+            root_uri = record.reply.root.uri if record.reply else notification.uri
+            root_cid = record.reply.root.cid if record.reply else notification.cid
 
-                    #Post.delete().where(Post.uri.in_(post_uris_to_delete))
-                    q = SubfeedMember.delete().where( (SubfeedMember.feeduser_id == feed_user.id) & (SubfeedMember.subfeed_id.in_(feeds_to_remove_from)) )
-                    q.execute()
 
-                    messages += [f'Removed from {feed.feed_name}' for feed in feed_cmds['remove']]
+            feed_cmds, setting_cmds = post_contains_cmd(record)
 
-                for col_name, value, message in setting_cmds:
-                    setattr(feed_user, col_name, value)
+            if not (feed_cmds or setting_cmds):
+                continue
+
+            user_did = notification.author.did
+            feed_user = get_or_add_user(user_did)
+
+            print(feed_user)
+
+            messages = []
+
+            if 'add' in feed_cmds:
+                #stmt = sqlalchemy.select(SubfeedMember)
+                #feed_members = [row for row in session.scalars(stmt).all()]
+
+                feed_members = SubfeedMember.select()
+
+                feed_members_to_create = []
+
+                for feed in feed_cmds['add']:
+                    print(feed)
+
+                    if any([fm.feeduser_id == feed_user.id and fm.subfeed_id == feed.id for fm in feed_members]):
+                        messages.append(f'You are already a member of {feed.feed_name}.')
+                    else:
+                        feed_members_to_create.append({'feeduser_id': feed_user.id, 'subfeed_id': feed.id})
+                        messages.append(f'Added to {feed.feed_name}.')
+
+                if feed_members_to_create:
+                    print(feed_members_to_create)
+                    #session.execute(sqlalchemy.insert(SubfeedMember), feed_members_to_create)
                     #session.commit()
-                    feed_user.save()
-                    messages.append(message)
+
+                    with db.atomic():
+                        for fm_dict in feed_members_to_create:
+                            SubfeedMember.create(**fm_dict)
 
 
-                reply_ref = {'uri': notification.uri, 'cid': notification.cid}
-                reply_root = {'uri': root_uri, 'cid': root_cid}
-                bsky_client.send_post(
-                    text='\n'.join(messages),
-                    reply_to=models.AppBskyFeedPost.ReplyRef(parent=reply_ref, root=reply_root),
-                )
+            if 'remove' in feed_cmds:
+                feeds_to_remove_from = [feed.id for feed in feed_cmds['remove']]
+                #stmt = sqlalchemy.delete(SubfeedMember).where(sqlalchemy.and_(SubfeedMember.user_id == feed_user.id, SubfeedMember.subfeed_id.in_(feeds_to_remove_from)))
+                #session.execute(stmt)
+                #session.commit()
 
-                bsky_client.app.bsky.notification.update_seen({'seen_at': bsky_client.get_current_time_iso()})
+                #print('...')
+                #print(feeds_to_remove_from)
 
-        time.sleep(30)
+                #q = SubfeedMember.select().where( (SubfeedMember.feeduser_id == feed_user.id) & (SubfeedMember.subfeed_id.in_(feeds_to_remove_from)) )
+                #print(len(q))
+
+    
+
+                #Post.delete().where(Post.uri.in_(post_uris_to_delete))
+                q = SubfeedMember.delete().where( (SubfeedMember.feeduser_id == feed_user.id) & (SubfeedMember.subfeed_id.in_(feeds_to_remove_from)) )
+                q.execute()
+
+                messages += [f'Removed from {feed.feed_name}' for feed in feed_cmds['remove']]
+
+            for col_name, value, message in setting_cmds:
+                setattr(feed_user, col_name, value)
+                #session.commit()
+                feed_user.save()
+                messages.append(message)
+
+
+            reply_ref = {'uri': notification.uri, 'cid': notification.cid}
+            reply_root = {'uri': root_uri, 'cid': root_cid}
+            bsky_client.send_post(
+                text='\n'.join(messages),
+                reply_to=models.AppBskyFeedPost.ReplyRef(parent=reply_ref, root=reply_root),
+            )
+
+            bsky_client.app.bsky.notification.update_seen({'seen_at': bsky_client.get_current_time_iso()})
+
+        #time.sleep(30)
 
 
 if __name__ == '__main__':

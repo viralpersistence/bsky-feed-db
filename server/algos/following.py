@@ -71,7 +71,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
             (UserFollows.feeduser_id == user.id)
         )
 
-    posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
+    #posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
 
 
     if cursor:
@@ -86,8 +86,16 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
         indexed_at, cid = cursor_parts
         indexed_at = datetime.fromtimestamp(int(indexed_at) / 1000)
-        #posts = posts.where(((Post.indexed_at == indexed_at) & (Post.cid < cid)) | (Post.indexed_at < indexed_at))
-        posts = [post for post in posts if (post.indexed_at == indexed_at and post.cid < cid) or post.indexed_at < indexed_at]
+
+        where_stmt = (where_stmt & ( ( (Post.indexed_at == indexed_at) & (Post.cid < cid)  ) | (Post.indexed_at < indexed_at) ) )
+
+        posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
+        
+        
+        #posts = [post for post in posts if (post.indexed_at == indexed_at and post.cid < cid) or post.indexed_at < indexed_at]
+    else:
+        posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
+
 
     feed = [{'post': post.uri} for post in posts]
 
