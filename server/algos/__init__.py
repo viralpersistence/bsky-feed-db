@@ -1,4 +1,4 @@
-from . import following, discover, links, secret, mutualaid, unitedkingdom
+from . import following, discover#, links, secret, mutualaid, unitedkingdom
 
 algos = {
     following.uri: following.handler,

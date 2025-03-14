@@ -53,7 +53,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     #posts = session.scalars(stmt).all()
 
     user = get_or_add_user(requester_did)
-    userfollows_dids = [uf['follows_did'] for uf in user.follows]
+    userfollows_dids = [uf.follows_did for uf in user.follows]
 
     '''
     stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user.id)
