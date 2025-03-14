@@ -10,7 +10,7 @@ class BaseModel(peewee.Model):
         database = db
 
 class Post(BaseModel):
-    uri = peewee.CharField(index=True, unique=True)
+    uri = peewee.CharField(index=True)
     cid = peewee.CharField()
     did = peewee.CharField()
     reply_parent = peewee.CharField(null=True, default=None)

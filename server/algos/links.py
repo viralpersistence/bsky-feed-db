@@ -5,20 +5,15 @@ from server import config
 from server.logger import logger
 from server.utils import get_or_add_user
 
-import sqlalchemy
-from sqlalchemy import or_, and_
-from server.database import session, Post, UserFollows#, User, Follows
+#import sqlalchemy
+#from sqlalchemy import or_, and_
+from server.database import Post, UserFollows#, User, Follows
 
 uri = config.LINKS_FEED_URI
 CURSOR_EOF = 'eof'
 
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
-
-    return {
-        'cursor': CURSOR_EOF,
-        'feed': []
-    }
 
     #stmt = sqlalchemy.select(Post).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
     #posts = session.scalars(stmt).all()
@@ -39,8 +34,35 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     #posts = session.scalars(stmt).all()
 
     user = get_or_add_user(requester_did)
+    userfollows_dids = [uf.follows_did for uf in user.follows]
 
+    if user.replies_off:
+        where_stmt = (
+            (Post.reply_parent == None) &
+            (Post.reply_root == None) &
+            (Post.has_link == 1) &
+            (Post.userlist_only == 0) &
+            (Post.subfeed_only == None) &
+            (
+                (Post.did.in_(userfollows_dids)) |
+                (Post.discoverable == 1)
+            )
+        )
 
+    else:
+        where_stmt = (
+            (Post.has_link == 1) &
+            (Post.userlist_only == 0) &
+            (Post.subfeed_only == None) &
+            (
+                (Post.did.in_(userfollows_dids)) |
+                (Post.discoverable == 1)
+            )
+        )
+
+    posts = Post.select().where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
+
+    '''
     stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user.id)
     userfollows_dids = [uf.follows_did for uf in session.scalars(stmt).all()]
 
@@ -68,6 +90,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     stmt = sqlalchemy.select(Post).filter(Post.has_link == 1).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
+    '''
 
     if cursor:
         if cursor == CURSOR_EOF:
