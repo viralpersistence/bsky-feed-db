@@ -89,13 +89,8 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
         where_stmt = (where_stmt & ( ( (Post.indexed_at == indexed_at) & (Post.cid < cid)  ) | (Post.indexed_at < indexed_at) ) )
 
-        posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
 
-
-        #posts = [post for post in posts if (post.indexed_at == indexed_at and post.cid < cid) or post.indexed_at < indexed_at]
-    else:
-        posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-
+    posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
 
     feed = [{'post': post.uri} for post in posts]
 

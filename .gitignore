@@ -4,6 +4,7 @@ nohup.out
 drop_duplicates.py
 beta_testing.py
 test_new_db.py
+test_cursor.py
 
 .DS_Store
 .idea
