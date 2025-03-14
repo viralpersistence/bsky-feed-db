@@ -5,9 +5,9 @@ from server import config
 from server.logger import logger
 from server.utils import get_or_add_user
 
-import sqlalchemy
-from sqlalchemy import and_
-from server.database import session, Post, UserFollows#, User, Follows
+#import sqlalchemy
+#from sqlalchemy import and_
+from server.database import Post, UserFollows#, User, Follows
 
 uri = config.DISCOVER_FEED_URI
 CURSOR_EOF = 'eof'
@@ -29,10 +29,10 @@ def get_follows(requester_did: str) -> list:
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
-    return {
-        'cursor': CURSOR_EOF,
-        'feed': []
-    }
+    #return {
+    #    'cursor': CURSOR_EOF,
+    #    'feed': []
+    #}
 
     #stmt = sqlalchemy.select(Post).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
     #posts = session.scalars(stmt).all()
@@ -53,7 +53,9 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
     #posts = session.scalars(stmt).all()
 
     user = get_or_add_user(requester_did)
+    userfollows_dids = [uf['follows_did'] for uf in user.follows]
 
+    '''
     stmt = sqlalchemy.select(UserFollows).filter(UserFollows.user_id == user.id)
     userfollows_dids = [uf.follows_did for uf in session.scalars(stmt).all()]
 
@@ -72,7 +74,22 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     stmt = sqlalchemy.select(Post).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
+    '''
 
+    if user.replies_off:
+        where_stmt = (
+            (Post.discoverable == 1) &
+            (Post.did.not_in(userfollows_dids)) &
+            (Post.reply_parent == None) &
+            (Post.reply_root == None)
+        )
+    else:
+        where_stmt = (
+            (Post.discoverable == 1) &
+            (Post.did.not_in(userfollows_dids))
+        )
+
+    posts = Post.select().where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
 
     if cursor:
         if cursor == CURSOR_EOF:
