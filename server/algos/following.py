@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import Optional
-import sqlalchemy
-from sqlalchemy import and_
+#import sqlalchemy
+#from sqlalchemy import and_
 
 from server import config
 from server.logger import logger
-from server.database import session, Post, UserFollows#, User, Follows
+#from server.database import session, Post, UserFollows#, User, Follows
+from server.database import Post, UserFollows
 from server.utils import get_or_add_user
 
 uri = config.FOLLOWING_FEED_URI
@@ -28,31 +29,10 @@ def get_follows(requester_did: str) -> list:
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
-    return {
-        'cursor': CURSOR_EOF,
-        'feed': []
-    }
-
-    #stmt = sqlalchemy.select(Post).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    #posts = session.scalars(stmt).all()
-
-    '''
-    stmt = sqlalchemy.select(Follows).filter(Follows.did == requester_did)
-    rows = session.execute(stmt).fetchone()
-
-    if not rows:
-        add_user(requester_did)
-    '''
-
-    #all_followed_dids = get_follows(requester_did)
-    #logger.info(f"Retrieved {len(all_followed_dids)} for user {requester_did}")
-
-    #stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
-    #stmt = sqlalchemy.select(Post).where(Post.did.in_(all_followed_dids)).order_by(Post.indexed_at.desc()).limit(limit)
-    #posts = session.scalars(stmt).all()
-
+    
     user = get_or_add_user(requester_did)
 
+    '''
     if user.replies_off:
         where_stmt = and_(
             Post.link_only == 0,
@@ -72,6 +52,26 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     stmt = sqlalchemy.select(Post).join(UserFollows, Post.did == UserFollows.follows_did).where(where_stmt).order_by(Post.indexed_at.desc()).limit(limit)
     posts = session.scalars(stmt).all()
+    '''
+
+    if user.replies_off:
+        where_stmt = (
+            (Post.link_only == 0) &
+            (Post.userlist_only == 0) &
+            (Post.subfeed_only == None) &
+            (UserFollows.feeduser_id == user.id) &
+            (Post.reply_parent == None) &
+            (Post.reply_root == None)
+        )
+    else:
+        where_stmt = (
+            (Post.link_only == 0) &
+            (Post.userlist_only == 0) &
+            (Post.subfeed_only == None) &
+            (UserFollows.feeduser_id == user.id)
+        )
+
+    posts = Post.select().join(UserFollows, on=(Post.did == UserFollows.follows_did)).where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc())
 
 
     if cursor:

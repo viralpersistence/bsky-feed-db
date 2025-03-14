@@ -5,18 +5,21 @@ from queue import Queue
 import time
 import sqlalchemy
 
-from server.database import Session, FeedUser, UserList, Subfeed
+#from server.database import Session, FeedUser, UserList, Subfeed
+from server.database import FeedUser, UserList, Subfeed
 from server import data_stream, config
 from server.logger import logger
 from server.data_filter import operations_callback, feed_users_dict, user_lists_dict, subfeeds_dict
 
 
 def reload_on_timer(lock, stream_stop_event=None):
-    thread_session = Session()
+    #thread_session = Session()
 
     while True:
         if stream_stop_event and stream_stop_event.is_set():
             break
+
+        '''
         stmt = sqlalchemy.select(FeedUser)
         feed_users = thread_session.scalars(stmt).all()
 
@@ -27,6 +30,14 @@ def reload_on_timer(lock, stream_stop_event=None):
         stmt = sqlalchemy.select(Subfeed)
         subfeeds = thread_session.scalars(stmt).all()
         #all_subfeeds = {row.id: row.feed_name for row in session.scalars(stmt).all()}
+        '''
+
+        feed_users = FeedUser.select()
+
+        user_lists = UserList.select()
+        all_list_subjects = list(set([row.subscribes_to_did for row in user_lists]))
+
+        subfeeds = Subfeed.select()
 
         with lock:
             for k, v in {row.did: row.id for row in feed_users}.items():

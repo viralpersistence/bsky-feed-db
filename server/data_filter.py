@@ -7,9 +7,11 @@ from atproto import models
 
 from server import config
 from server.logger import logger
-import sqlalchemy
+#import sqlalchemy
 #from database import conn#db, Post
-from server.database import session, Post, FeedUser, UserFollows, UserList, Subfeed#, FeedMember
+#from server.database import session, Post, FeedUser, UserFollows, UserList, Subfeed#, FeedMember
+from server.database import db, Post, FeedUser, UserFollows, UserList, Subfeed
+
 from server.search_terms import post_contains_any, post_contains_link_term, post_contains_subfeed_term
 from server.utils import get_or_add_user
 
@@ -48,28 +50,27 @@ def should_ignore_post(record: 'models.AppBskyFeedPost.Record') -> bool:
 
     return False
 
-
+'''
 stmt = sqlalchemy.select(FeedUser)
 feed_users_dict = {row.did: row.id for row in session.scalars(stmt).all()}
 
 stmt = sqlalchemy.select(Subfeed)
 subfeeds_dict = {row.id: row.feed_name for row in session.scalars(stmt).all()}
 
-'''
-stmt = sqlalchemy.select(FeedMember)
-feed_members_dict = {}
-
-for row in session.scalars(stmt).all():
-    did = {v: k for k, v in feed_users_dict.items()}[row.user_id]
-
-    if did not in feed_members_dict:
-        feed_members_dict[did] = []
-
-    feed_members_dict[did].append(row.feed_id)
-'''
-
 stmt = sqlalchemy.select(UserList)
 user_lists_dict = {row.subscribes_to_did: '' for row in session.scalars(stmt).all()}
+'''
+
+feed_users_dict = {row.did: row.id for row in FeedUser.select()}
+
+subfeeds_dict = {row.id: row.feed_name for row in Subfeed.select()}
+
+user_lists_dict = {row.subscribes_to_did: '' for row in UserList.select()}
+
+#user_lists = UserList.select()
+#all_list_subjects = list(set([row.subscribes_to_did for row in user_lists]))
+
+#subfeeds = Subfeed.select()
 
 
 def operations_callback(ops: defaultdict) -> None:
@@ -88,7 +89,7 @@ def operations_callback(ops: defaultdict) -> None:
             continue
 
         post_dict = {
-            'user_id': feed_users_dict[created_follow['author']],
+            'feeduser_id': feed_users_dict[created_follow['author']],
             'uri': created_follow['uri'],
             'follows_did': created_follow['record'].subject,
         }
@@ -97,17 +98,25 @@ def operations_callback(ops: defaultdict) -> None:
         
 
     if userfollows_to_create:
-        session.execute(sqlalchemy.insert(UserFollows), userfollows_to_create)
-        session.commit()
+        #session.execute(sqlalchemy.insert(UserFollows), userfollows_to_create)
+        #session.commit()
+
+        with db.atomic():
+            for uf_dict in userfollows_to_create:
+                UserFollows.create(**uf_dict)
+
         logger.info(f'Added to userfollows: {len(userfollows_to_create)}')
 
     userfollows_to_delete = ops[models.ids.AppBskyGraphFollow]['deleted']
     if userfollows_to_delete:
         userfollows_uris_to_delete = [userfollow['uri'] for userfollow in userfollows_to_delete]
 
-        stmt = sqlalchemy.delete(UserFollows).where(UserFollows.uri.in_(userfollows_uris_to_delete))
-        session.execute(stmt)
-        session.commit()
+        #stmt = sqlalchemy.delete(UserFollows).where(UserFollows.uri.in_(userfollows_uris_to_delete))
+        #session.execute(stmt)
+        #session.commit()
+
+        q = UserFollows.delete().where(UserFollows.uri.in_(userfollows_uris_to_delete))
+        q.execute()
 
         logger.info(f'Deleted from userfollows: {len(userfollows_uris_to_delete)}')
     
@@ -190,7 +199,7 @@ def operations_callback(ops: defaultdict) -> None:
                 'link_only': link_only,
                 'userlist_only': userlist_only,
                 'subfeed_only': subfeed_only,
-                'indexed_at': parser.parse(record.created_at),
+                #'indexed_at': parser.parse(record.created_at),
             }
             posts_to_create.append(post_dict)
 
@@ -208,13 +217,21 @@ def operations_callback(ops: defaultdict) -> None:
     if posts_to_delete:
         post_uris_to_delete = [post['uri'] for post in posts_to_delete]
 
-        stmt = sqlalchemy.delete(Post).where(Post.uri.in_(post_uris_to_delete))
-        session.execute(stmt)
-        session.commit()
+        #stmt = sqlalchemy.delete(Post).where(Post.uri.in_(post_uris_to_delete))
+        #session.execute(stmt)
+        #session.commit()
+
+        post_uris_to_delete = [post['uri'] for post in posts_to_delete]
+        q = Post.delete().where(Post.uri.in_(post_uris_to_delete))
+        q.execute()
 
         logger.info(f'Deleted from feed: {len(post_uris_to_delete)}')
 
     if posts_to_create:
-        session.execute(sqlalchemy.insert(Post), posts_to_create)
+        with db.atomic():
+            for post_dict in posts_to_create:
+                Post.create(**post_dict)
+
+        #session.execute(sqlalchemy.insert(Post), posts_to_create)
         logger.info(f'Added to feed: {len(posts_to_create)}')
-        session.commit()
+        #session.commit()

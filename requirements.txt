@@ -1,7 +1,7 @@
 atproto==0.0.58
 Flask~=2.3.2
 python-dotenv~=1.0.0
-sqlalchemy
+peewee~=3.16.2
 pymysql
 python-dateutil
 requests
