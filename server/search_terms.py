@@ -60,6 +60,7 @@ EXPANDED_KEYWORDS = [
     'neurological', 
     'neuropathy', 
     'onset', 
+    'pacing',
     'pem',
     'post-exertional',
 ]
