@@ -7,7 +7,7 @@ from server.utils import get_or_add_user
 
 import sqlalchemy
 from sqlalchemy import or_, and_
-from server.database import session, Post, Subfeed, SubfeedMember#, User, Follows
+from server.database import Post, Subfeed, SubfeedMember#, User, Follows
 
 uri = config.MUTUALAID_FEED_URI
 CURSOR_EOF = 'eof'
@@ -21,24 +21,33 @@ feed_name = 'mutualaid'
 subfeed = Subfeed.get(Subfeed.feed_name == feed_name)
 subfeed_id = subfeed.id
 
+logger.info("what the fuck")
+logger.info(subfeed_id)
+
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
-
+    logger.info("seriously what the fuck is going on")
     #return {
     #    'cursor': CURSOR_EOF,
     #    'feed': []
     #}
 
-    #user = get_or_add_user(requester_did)
+    user = get_or_add_user(requester_did)
     #userfollows_dids = [uf.follows_did for uf in user.follows]
 
-    member_ids = SubfeedMember.select().where(SubfeedMember.subfeed_id == subfeed_id)
+    logger.info("what the fuck is going on")
+    logger.info(subfeed_id)
+
+    #member_ids = SubfeedMember.select().where(SubfeedMember.subfeed_id == subfeed_id)
+    member_ids = [member.feeduser.did for member in subfeed.members]
+
+    logger.info(member_ids)
 
     if user.replies_off:
         where_stmt = (
             (Post.userlist_only == 0) &
             (Post.link_only == 0) &
-            (Post.did.in_(member_ids)) 
+            (Post.did.in_(member_ids))
             (Post.subfeed_only.in_([None, subfeed_id])) &
             (Post.reply_parent == None) &
             (Post.reply_root == None)
@@ -67,10 +76,10 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
         where_stmt = (where_stmt & ( ( (Post.indexed_at == indexed_at) & (Post.cid < cid)  ) | (Post.indexed_at < indexed_at) ) )
 
-    posts = Post.where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+    posts = Post.select().where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
 
     '''
-    stmt = sqlalchemy.select(SubfeedMember).filter(SubfeedMember.subfeed_id == subfeed_id)  
+    stmt = sqlalchemy.select(SubfeedMember).filter(SubfeedMember.subfeed_id == subfeed_id)
     member_ids = [fm.user_id for fm in session.scalars(stmt).all()]
 
 
