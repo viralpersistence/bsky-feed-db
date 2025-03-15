@@ -1,11 +1,9 @@
 from datetime import datetime
 from typing import Optional
-import sqlalchemy
-from sqlalchemy import and_
 
 from server import config
 from server.logger import logger
-from server.database import session, Post, UserList#, User, Follows
+from server.database import Post, UserList#, User, Follows
 from server.utils import get_or_add_user
 
 uri = config.SECRET_FEED_URI
