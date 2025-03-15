@@ -15,19 +15,61 @@ CURSOR_EOF = 'eof'
 feed_name = 'mutualaid'
 
 
-stmt = sqlalchemy.select(Subfeed)
-subfeed_id = [row.id for row in session.scalars(stmt).all() if row.feed_name == feed_name][0]#{row.id: row.feed_name for row in session.scalars(stmt).all()}
+#stmt = sqlalchemy.select(Subfeed)
+#subfeed_id = [row.id for row in session.scalars(stmt).all() if row.feed_name == feed_name][0]
+
+subfeed = Subfeed.get(Subfeed.feed_name == feed_name)
+subfeed_id = subfeed.id
 
 
 def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
-    return {
-        'cursor': CURSOR_EOF,
-        'feed': []
-    }
+    #return {
+    #    'cursor': CURSOR_EOF,
+    #    'feed': []
+    #}
 
-    user = get_or_add_user(requester_did)
+    #user = get_or_add_user(requester_did)
+    #userfollows_dids = [uf.follows_did for uf in user.follows]
 
+    member_ids = SubfeedMember.select().where(SubfeedMember.subfeed_id == subfeed_id)
+
+    if user.replies_off:
+        where_stmt = (
+            (Post.userlist_only == 0) &
+            (Post.link_only == 0) &
+            (Post.did.in_(member_ids)) 
+            (Post.subfeed_only.in_([None, subfeed_id])) &
+            (Post.reply_parent == None) &
+            (Post.reply_root == None)
+        )
+
+    else:
+        where_stmt = (
+            (Post.userlist_only == 0) &
+            (Post.link_only == 0) &
+            (Post.did.in_(member_ids)) &
+            (Post.subfeed_only.in_([None, subfeed_id]))
+        )
+
+    if cursor:
+        if cursor == CURSOR_EOF:
+            return {
+                'cursor': CURSOR_EOF,
+                'feed': []
+            }
+        cursor_parts = cursor.split('::')
+        if len(cursor_parts) != 2:
+            raise ValueError('Malformed cursor')
+
+        indexed_at, cid = cursor_parts
+        indexed_at = datetime.fromtimestamp(int(indexed_at) / 1000)
+
+        where_stmt = (where_stmt & ( ( (Post.indexed_at == indexed_at) & (Post.cid < cid)  ) | (Post.indexed_at < indexed_at) ) )
+
+    posts = Post.where(where_stmt).order_by(Post.cid.desc()).order_by(Post.indexed_at.desc()).limit(limit)
+
+    '''
     stmt = sqlalchemy.select(SubfeedMember).filter(SubfeedMember.subfeed_id == subfeed_id)  
     member_ids = [fm.user_id for fm in session.scalars(stmt).all()]
 
@@ -70,6 +112,7 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
         indexed_at = datetime.fromtimestamp(int(indexed_at) / 1000)
         #posts = posts.where(((Post.indexed_at == indexed_at) & (Post.cid < cid)) | (Post.indexed_at < indexed_at))
         posts = [post for post in posts if (post.indexed_at == indexed_at and post.cid < cid) or post.indexed_at < indexed_at]
+    '''
 
     feed = [{'post': post.uri} for post in posts]
 
