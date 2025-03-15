@@ -18,12 +18,12 @@ def handler(cursor: Optional[str], limit: int, requester_did: str) -> dict:
 
     if user.replies_off:
         where_stmt = (
-            (UserList.user_id == user.id) &
+            (UserList.feeduser_id == user.id) &
             (Post.reply_parent == None) &
             (Post.reply_root == None)
         )
     else:
-        where_stmt = (UserList.user_id == user.id)
+        where_stmt = (UserList.feeduser_id == user.id)
 
     if cursor:
         if cursor == CURSOR_EOF:
