@@ -5,3 +5,4 @@ peewee~=3.16.2
 pymysql
 python-dateutil
 requests
+flask-login
