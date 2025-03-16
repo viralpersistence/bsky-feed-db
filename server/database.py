@@ -51,9 +51,7 @@ class SubfeedMember(BaseModel):
     subfeed = peewee.ForeignKeyField(Subfeed, backref='members')
 
 class DbUser(UserMixin, BaseModel):
-    #user_did = peewee.CharField()
     feeduser = peewee.ForeignKeyField(FeedUser, backref='dbuser')
-    user_handle = peewee.CharField(unique=True)
     password = peewee.CharField()
 
 if db.is_closed():
