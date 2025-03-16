@@ -1,7 +1,7 @@
 import time
 #import sqlalchemy
 #import asyncio
-from atproto import models, Client
+from atproto import models, Client, exceptions
 from string import punctuation
 #from server.client import bsky_client
 #from server.database import session, Subfeed, SubfeedMember
@@ -56,7 +56,15 @@ def main() -> None:
     bsky_client.login(config.HANDLE, config.PASSWORD)
 
     while True:
-        response = bsky_client.app.bsky.notification.list_notifications()
+        
+        try:
+            response = bsky_client.app.bsky.notification.list_notifications()
+        except exceptions.InvokeTimeoutError:
+            bsky_client = Client("https://bsky.social")
+            bsky_client.login(config.HANDLE, config.PASSWORD)
+            continue
+
+
         for notification in response.notifications:
             if notification.reason == 'mention' and not notification.is_read:
             
