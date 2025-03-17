@@ -1,3 +1,5 @@
+#!/usr/bin/env /home/viralpersistence/bsky-feed-db/venv/bin/python3.12
+
 import time
 #import sqlalchemy
 #import asyncio
@@ -11,6 +13,7 @@ from server import config
 
 # script to update feed members and settings based on notifications
 
+print('hey this happens')
 
 SUBFEED_CMDS = {
     'AddTo': 'add',
