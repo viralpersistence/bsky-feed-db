@@ -1,5 +1,3 @@
-#!/usr/bin/env /home/viralpersistence/bsky-feed-db/venv/bin/python3.12
-
 import datetime
 import time
 from server.database import db, Post, FeedUser
