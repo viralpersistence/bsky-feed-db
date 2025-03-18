@@ -1,15 +1,14 @@
 #!/usr/bin/env /home/viralpersistence/bsky-feed-db/venv/bin/python3.12
 
 import time
-#import sqlalchemy
-#import asyncio
-from atproto import models, Client, exceptions
+from atproto import models, Client, IdResolver
 from string import punctuation
-#from server.client import bsky_client
-#from server.database import session, Subfeed, SubfeedMember
-from server.database import db, Subfeed, SubfeedMember
-from server.utils import get_or_add_user
+import secrets
+from server.config import HANDLE
+from server.database import db, Subfeed, SubfeedMember, DbUser
+from server.utils import get_or_add_user, get_uf_handles
 from server import config
+
 
 # script to update feed members and settings based on notifications
 
@@ -58,16 +57,51 @@ def main() -> None:
     bsky_client = Client("https://bsky.social")
     bsky_client.login(config.HANDLE, config.PASSWORD)
 
+    dm_client = bsky_client.with_bsky_chat_proxy()
+    dm = dm_client.chat.bsky.convo
+
+    id_resolver = IdResolver()
+    client_did = id_resolver.handle.resolve(HANDLE)
+
     while True:
         
-        try:
-            response = bsky_client.app.bsky.notification.list_notifications()
-        except exceptions.InvokeTimeoutError:
-            bsky_client = Client("https://bsky.social")
-            bsky_client.login(config.HANDLE, config.PASSWORD)
-            continue
+        convo_list = dm.list_convos()  # use limit and cursor to paginate
+        for convo in convo_list.convos:
+            members = [member.did for member in convo.members]
+
+            if len(members) != 2 or convo.unread_count == 0:
+                continue
+
+            print(convo.last_message.text.lower().strip())
+
+            if convo.last_message.text.lower().strip() != 'password':
+                continue
+
+            user_did = [did for did in members if did != client_did][0]
+            user_password = secrets.token_urlsafe(20)
+
+            feed_user = get_or_add_user(user_did)
+            get_uf_handles(feed_user)
 
 
+            if feed_user.dbuser:
+                q = DbUser.update({DbUser.password: user_password}).where(DbUser.feeduser_id == feed_user.id)
+                q.execute()
+            else:
+                dbuser = DbUser.create(feeduser_id=feed_user.id, password=user_password)
+
+            dm.send_message(
+                models.ChatBskyConvoSendMessage.Data(
+                    convo_id=convo.id,
+                    message=models.ChatBskyConvoDefs.MessageInput(
+                        text=user_password,
+                    ),
+                )
+            )
+
+            dm.update_read({'convo_id': convo.id})
+
+        response = bsky_client.app.bsky.notification.list_notifications()
         for notification in response.notifications:
             if notification.reason == 'mention' and not notification.is_read:
             
