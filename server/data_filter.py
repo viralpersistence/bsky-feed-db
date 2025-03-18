@@ -10,7 +10,7 @@ from server.logger import logger
 #import sqlalchemy
 #from database import conn#db, Post
 #from server.database import session, Post, FeedUser, UserFollows, UserList, Subfeed#, FeedMember
-from server.database import db, Post, FeedUser, UserFollows, UserList, Subfeed
+from server.database import db, Post, FeedUser, UserFollows, UserList, Subfeed, SubfeedMember
 
 from server.search_terms import post_contains_any, post_contains_link_term, post_contains_subfeed_term
 from server.utils import get_or_add_user
@@ -65,6 +65,10 @@ feed_users_dict = {row.did: row.id for row in FeedUser.select()}
 
 subfeeds_dict = {row.id: row.feed_name for row in Subfeed.select()}
 
+subfeed_members_dict = {row.did: '' for row in FeedUser.select().join(SubfeedMember)}
+
+print(subfeed_members_dict)
+
 user_lists_dict = {row.subscribes_to_did: '' for row in UserList.select()}
 
 #user_lists = UserList.select()
@@ -77,8 +81,6 @@ def operations_callback(ops: defaultdict) -> None:
     # Here we can filter, process, run ML classification, etc.
     # After our feed alg we can save posts into our DB
     # Also, we should process deleted posts to remove them from our DB and keep it in sync
-
-    #print(subfeeds_dict)
 
     
     userfollows_to_create = []
@@ -171,7 +173,7 @@ def operations_callback(ops: defaultdict) -> None:
 
         if not should_appear:
             for subfeed_id, subfeed_name in subfeeds_dict.items():
-                if (not record.reply) and post_contains_subfeed_term(record, subfeed_name):
+                if post_contains_subfeed_term(record, subfeed_name) and author in subfeed_members_dict:
                     should_appear = True
                     subfeed_only = subfeed_id
 

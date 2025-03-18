@@ -6,10 +6,10 @@ import time
 import sqlalchemy
 
 #from server.database import Session, FeedUser, UserList, Subfeed
-from server.database import FeedUser, UserList, Subfeed
+from server.database import FeedUser, UserList, Subfeed, SubfeedMember
 from server import data_stream, config
 from server.logger import logger
-from server.data_filter import operations_callback, feed_users_dict, user_lists_dict, subfeeds_dict
+from server.data_filter import operations_callback, feed_users_dict, user_lists_dict, subfeeds_dict, subfeed_members_dict
 
 
 def reload_on_timer(lock, stream_stop_event=None):
@@ -19,23 +19,12 @@ def reload_on_timer(lock, stream_stop_event=None):
         if stream_stop_event and stream_stop_event.is_set():
             break
 
-        '''
-        stmt = sqlalchemy.select(FeedUser)
-        feed_users = thread_session.scalars(stmt).all()
-
-        stmt = sqlalchemy.select(UserList)
-        user_lists = thread_session.scalars(stmt).all()
-        all_list_subjects = list(set([row.subscribes_to_did for row in user_lists]))
-
-        stmt = sqlalchemy.select(Subfeed)
-        subfeeds = thread_session.scalars(stmt).all()
-        #all_subfeeds = {row.id: row.feed_name for row in session.scalars(stmt).all()}
-        '''
-
         feed_users = FeedUser.select()
 
         user_lists = UserList.select()
         all_list_subjects = list(set([row.subscribes_to_did for row in user_lists]))
+
+        all_subfeed_members = list(set([row.did for row in FeedUser.select().join(SubfeedMember)]))
 
         subfeeds = Subfeed.select()
 
@@ -51,7 +40,10 @@ def reload_on_timer(lock, stream_stop_event=None):
                     del user_lists_dict[k]
 
             for k in all_list_subjects:
-                user_lists_dict[k] = ''                
+                user_lists_dict[k] = ''
+
+            for k in all_subfeed_members:
+                subfeed_members_dict[k] = ''
 
         time.sleep(120)
 
