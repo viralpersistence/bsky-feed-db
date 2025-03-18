@@ -37,11 +37,16 @@ class FeedUser(BaseModel):
 class UserFollows(BaseModel):
     feeduser = peewee.ForeignKeyField(FeedUser, backref='follows')
     follows_did = peewee.CharField()
+    follows_handle = peewee.CharField(null=True)
+    follows_disp_name = peewee.CharField(null=True)
+
     uri = peewee.CharField(unique=True)
 
 class UserList(BaseModel):
     feeduser = peewee.ForeignKeyField(FeedUser, backref='subscribes')
     subscribes_to_did = peewee.CharField()
+    subscribes_to_handle = peewee.CharField()
+    subscribes_to_disp_name = peewee.CharField()
 
 class Subfeed(BaseModel):
     feed_name = peewee.CharField(unique=True)

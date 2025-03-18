@@ -5,6 +5,34 @@ import requests
 
 from server.database import db, FeedUser, UserFollows
 
+def get_uf_handles(feed_user):
+    userfollows = UserFollows.select().where(UserFollows.feeduser_id == feed_user.id)
+    max_profiles = 25
+
+    for idx in range(0, len(userfollows), 25):
+        sl = userfollows[idx:min(len(userfollows), idx + max_profiles)]
+        sl_dids = [elem.follows_did for elem in sl]
+
+        actor_batch = requests.get(
+            "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfiles",
+            params={
+                "actors": sl_dids
+            }
+        ).json()
+
+
+        uf_dids = [actor['did'] for actor in actor_batch['profiles']]
+
+        case_stmt = peewee.Case(UserFollows.follows_did, [(actor['did'], actor['handle']) for actor in actor_batch['profiles']])
+        query = UserFollows.update(follows_handle=case_stmt).where(UserFollows.follows_did.in_(uf_dids))
+        query.execute()
+
+        case_stmt = peewee.Case(UserFollows.follows_did, [(actor['did'], actor['displayName']) for actor in actor_batch['profiles']])
+        query = UserFollows.update(follows_disp_name=case_stmt).where(UserFollows.follows_did.in_(uf_dids))
+        query.execute()
+
+
+
 @db.atomic()
 def add_user(requester_did):
     feed_user = FeedUser.create(did=requester_did)
