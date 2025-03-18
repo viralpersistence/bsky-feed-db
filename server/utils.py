@@ -49,7 +49,7 @@ def get_uf_handles(feed_user):
 
     for idx in range(0, len(usersubscribes), max_profiles):
         sl = usersubscribes[idx:min(len(usersubscribes), idx + max_profiles)]
-        sl_dids = [elem.subscribes_did for elem in sl]
+        sl_dids = [elem.subscribes_to_did for elem in sl]
 
         actor_batch = requests.get(
             "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfiles",
@@ -63,12 +63,12 @@ def get_uf_handles(feed_user):
         if not uf_actors:
             continue
 
-        case_stmt = peewee.Case(UserList.subscribes_did, [(actor['did'], actor['handle']) for actor in uf_actors])
-        query = UserList.update(subscribes_handle=case_stmt).where(UserList.subscribes_did.in_([actor['did'] for actor in uf_actors]))
+        case_stmt = peewee.Case(UserList.subscribes_to_did, [(actor['did'], actor['handle']) for actor in uf_actors])
+        query = UserList.update(subscribes_to_handle=case_stmt).where(UserList.subscribes_to_did.in_([actor['did'] for actor in uf_actors]))
         query.execute()
 
-        case_stmt = peewee.Case(UserList.subscribes_did, [(actor['did'], actor['disp_name']) for actor in uf_actors])
-        query = UserList.update(subscribes_disp_name=case_stmt).where(UserList.subscribes_did.in_([actor['did'] for actor in uf_actors]))
+        case_stmt = peewee.Case(UserList.subscribes_to_did, [(actor['did'], actor['disp_name']) for actor in uf_actors])
+        query = UserList.update(subscribes_to_disp_name=case_stmt).where(UserList.subscribes_to_did.in_([actor['did'] for actor in uf_actors]))
         query.execute()
 
 

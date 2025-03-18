@@ -25,6 +25,6 @@ for user in all_users:
     if user.dbuser:
         get_uf_handles(user)
 
-    #print(user.did)
+    print(user.did)
     #get_uf_handles(user)
     #time.sleep(30)
