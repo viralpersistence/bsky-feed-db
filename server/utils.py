@@ -76,8 +76,8 @@ def add_user(requester_did):
 
 
 def get_or_add_user(requester_did):
-    if db.is_closed():
-        db.connect()
+    #if db.is_closed():
+    #    db.connect()
         
     try:
         user = add_user(requester_did)

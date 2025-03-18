@@ -2,9 +2,15 @@ from datetime import datetime
 from server import config
 import peewee
 from flask_login import UserMixin
+from peewee import MySQLDatabase
+from playhouse.shortcuts import ReconnectMixin
 
-db = peewee.MySQLDatabase(config.DB_NAME, user=config.DB_USER, password=config.DB_PASSWORD, host=config.DB_HOST, port=int(config.DB_PORT))
+class ReconnectMySQLDatabase(ReconnectMixin, MySQLDatabase):
+    pass
 
+#db = peewee.MySQLDatabase(config.DB_NAME, user=config.DB_USER, password=config.DB_PASSWORD, host=config.DB_HOST, port=int(config.DB_PORT))
+
+db = ReconnectMySQLDatabase(config.DB_NAME, user=config.DB_USER, password=config.DB_PASSWORD, host=config.DB_HOST, port=int(config.DB_PORT))
 
 class BaseModel(peewee.Model):
     class Meta:
