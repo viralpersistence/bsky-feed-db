@@ -35,9 +35,14 @@ def reload_on_timer(lock, stream_stop_event=None):
             for k, v in {row.id: row.feed_name for row in subfeeds}.items():
                 subfeeds_dict[k] = v
 
+            delete_list = []
             for k in user_lists_dict:
                 if not k in all_list_subjects:
-                    del user_lists_dict[k]
+                    #del user_lists_dict[k]
+                    delete_list.append(k)
+
+            for k in delete_list:
+                del user_lists_dict[k]
 
             for k in all_list_subjects:
                 user_lists_dict[k] = ''
