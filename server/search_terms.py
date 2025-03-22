@@ -72,6 +72,7 @@ BIGRAMS = [
     'chronic fatigue', 
     'chronic illness', 
     'chronic pain', 
+    'chronically ill',
     'ehlers danlos', 
     'energy limiting',
     'energy limit',

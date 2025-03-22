@@ -7,44 +7,9 @@ import time
 from server.database import db, FeedUser, UserFollows, UserList
 
 def get_uf_handles(feed_user):
-    userfollows = UserFollows.select().where(UserFollows.feeduser_id == feed_user.id)
     usersubscribes = UserList.select().where(UserList.feeduser_id == feed_user.id)
     
     max_profiles = 25
-
-    for idx in range(0, len(userfollows), max_profiles):
-        sl = userfollows[idx:min(len(userfollows), idx + max_profiles)]
-        sl_dids = [elem.follows_did for elem in sl]
-
-        #print(len(sl_dids))
-
-        actor_batch = requests.get(
-            "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfiles",
-            params={
-                "actors": sl_dids
-            }
-        ).json()
-
-        #for elem in actor_batch['profiles']:
-        #    if 'displayName' not in elem:
-        #        print(elem)
-
-
-        uf_actors = [{'did': actor['did'], 'handle': actor['handle'], 'disp_name': actor['displayName']} for actor in actor_batch['profiles'] if 'handle' in actor and 'displayName' in actor]
-        if not uf_actors:
-            continue
-
-        #print(actor_batch['profiles'])
-
-        case_stmt = peewee.Case(UserFollows.follows_did, [(actor['did'], actor['handle']) for actor in uf_actors])
-        query = UserFollows.update(follows_handle=case_stmt).where(UserFollows.follows_did.in_([actor['did'] for actor in uf_actors]))
-        query.execute()
-
-        case_stmt = peewee.Case(UserFollows.follows_did, [(actor['did'], actor['disp_name']) for actor in uf_actors])
-        query = UserFollows.update(follows_disp_name=case_stmt).where(UserFollows.follows_did.in_([actor['did'] for actor in uf_actors]))
-        query.execute()
-
-        #time.sleep(10)
 
 
     for idx in range(0, len(usersubscribes), max_profiles):
