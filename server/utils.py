@@ -7,14 +7,15 @@ import time
 from server.database import db, FeedUser, UserFollows, UserList
 
 def get_uf_handles(feed_user):
+
+    userfollows = UserFollows.select().where(UserFollows.feeduser_id == feed_user.id)
     usersubscribes = UserList.select().where(UserList.feeduser_id == feed_user.id)
-    
     max_profiles = 25
+ 
+    for idx in range(0, len(userfollows), max_profiles):
 
-
-    for idx in range(0, len(usersubscribes), max_profiles):
-        sl = usersubscribes[idx:min(len(usersubscribes), idx + max_profiles)]
-        sl_dids = [elem.subscribes_to_did for elem in sl]
+        sl = userfollows[idx:min(len(userfollows), idx + max_profiles)]
+        sl_dids = [elem.follows_did for elem in sl]
 
         actor_batch = requests.get(
             "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfiles",
@@ -22,16 +23,42 @@ def get_uf_handles(feed_user):
                 "actors": sl_dids
             }
         ).json()
-
+ 
 
         uf_actors = [{'did': actor['did'], 'handle': actor['handle'], 'disp_name': actor['displayName']} for actor in actor_batch['profiles'] if 'handle' in actor and 'displayName' in actor]
+
         if not uf_actors:
             continue
 
+        case_stmt = peewee.Case(UserFollows.follows_did, [(actor['did'], actor['handle']) for actor in uf_actors])
+        query = UserFollows.update(follows_handle=case_stmt).where(UserFollows.follows_did.in_([actor['did'] for actor in uf_actors]))
+        query.execute()
+
+        case_stmt = peewee.Case(UserFollows.follows_did, [(actor['did'], actor['disp_name']) for actor in uf_actors])
+        query = UserFollows.update(follows_disp_name=case_stmt).where(UserFollows.follows_did.in_([actor['did'] for actor in uf_actors]))
+        query.execute()
+
+ 
+    for idx in range(0, len(usersubscribes), max_profiles):
+        sl = usersubscribes[idx:min(len(usersubscribes), idx + max_profiles)]
+        sl_dids = [elem.subscribes_to_did for elem in sl]
+ 
+        actor_batch = requests.get(
+            "https://public.api.bsky.app/xrpc/app.bsky.actor.getProfiles",
+            params={
+                "actors": sl_dids
+            }
+        ).json()
+
+        uf_actors = [{'did': actor['did'], 'handle': actor['handle'], 'disp_name': actor['displayName']} for actor in actor_batch['profiles'] if 'handle' in actor and 'displayName' in actor]
+ 
+        if not uf_actors:
+            continue
+ 
         case_stmt = peewee.Case(UserList.subscribes_to_did, [(actor['did'], actor['handle']) for actor in uf_actors])
         query = UserList.update(subscribes_to_handle=case_stmt).where(UserList.subscribes_to_did.in_([actor['did'] for actor in uf_actors]))
         query.execute()
-
+ 
         case_stmt = peewee.Case(UserList.subscribes_to_did, [(actor['did'], actor['disp_name']) for actor in uf_actors])
         query = UserList.update(subscribes_to_disp_name=case_stmt).where(UserList.subscribes_to_did.in_([actor['did'] for actor in uf_actors]))
         query.execute()
