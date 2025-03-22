@@ -80,8 +80,12 @@ BIGRAMS = [
     'infection associated', 
     'infection-associated chronic', 
     'joint pain', 
+    'lc symptom',
+    'lc symptoms',
     'long covid', 
     'mast cell', 
+    'me symptom',
+    'me symptoms',
     'mild me', 
     'mild me/cfs', 
     'mild mecfs', 
@@ -90,12 +94,17 @@ BIGRAMS = [
     'moderate mecfs', 
     'muscle pain', 
     'myalgic encephalomyelitis', 
+    'pace trial',
     'post exertion', 
-    'post exertional', 
+    'post exertional',
+    'post viral', 
+    'post-viral illness',
+    'post-viral illnesses',
     'severe me', 
     'severe me/cfs', 
     'severe mecfs', 
-    'tethered cord']
+    'tethered cord',
+    'viral illness']
 
 LINK_TERMS = [
     #'blood', 
