@@ -28,13 +28,13 @@ Python feeds for IACC community based on [https://github.com/MarshalX/bluesky-fe
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-links](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-links)
 
-**Logic:** Posts from people you follow including any of the following keywords **AND** containing links:
+**Logic:** Posts from people you follow including any of the following keywords **AND** containing a link:
 
 ````
 ['#cfs/me', '#cfsme', '#dysautonomia', '#fibro', '#fibromyalgia', '#iacc', '#iaccs', '#longcovid', '#longcovidkids', '#lyme', '#mcas', '#me/cfs', '#mecfs', '#myalgice', '#myalgicencephalomyelitis', '#neisvoid', '#pots', '#pwlc', '#pwme', '#severeme', '#thereforme', '#verysevereme', 'able-bodied', 'abled', 'autoimmune', 'brain fog', 'brainfog', 'cdc', 'cfs', 'cfs/me', 'cfsme', 'chiari', 'chronic fatigue', 'chronic illness', 'chronic pain', 'chronically ill', 'chronicillness', 'chronicpain', 'covid', 'covid-19', 'disability', 'disabled', 'disease', 'diseases', 'dna', 'dysautonomia', 'ebv', 'eds', 'ehlers danlos', 'ehlers-danlos', 'endometriosis', 'energy limit', 'energy limiting', 'energy limits', 'energy-limiting', 'epstein barr', 'fatigue', 'fibro', 'fibromyalgia', 'flu', 'gastroparesis', 'genes', 'genetic', 'genomic', 'headache', 'hhs', 'hypermobile', 'hypermobility', 'iacc', 'iaccs', 'immune', 'immunocompromise', 'immunocompromised', 'infection', 'infection associated', 'infection-associated', 'infection-associated chronic', 'inflammation', 'influenza', 'insomnia', 'joint pain', 'lab', 'labs', 'lc symptom', 'lc symptoms', 'long covid', 'longcovid', 'longcovidkids', 'lyme', 'mast cell', 'mcas', 'me symptom', 'me symptoms', 'me/cfs', 'mecfs', 'migraine', 'mild me', 'mild me/cfs', 'mild mecfs', 'mitochondria', 'moderate me', 'moderate me/cfs', 'moderate mecfs', 'muscle pain', 'myalgic encephalomyelitis', 'myalgice', 'myalgicencephalomyelitis', 'neisvoid', 'neurological', 'neuropathy', 'nih', 'onset', 'pace trial', 'pacing', 'pem', 'post exertion', 'post exertional', 'post viral', 'post-exertional', 'post-viral illness', 'post-viral illnesses', 'pots', 'protein', 'pwlc', 'pwme', 'research', 'rna', 'sars-cov-2', 'severe me', 'severe me/cfs', 'severe mecfs', 'severeme', 'tethered cord', 'thereforme', 'verysevereme', 'viral illness', 'virus', 'viruses']
 ````
 
-**OR** posts from people you do NOT follow including any of the following keywords **AND** containing links:
+**OR** posts from people you do NOT follow including any of the following keywords **AND** containing a link:
 
 ````
 ['#cfs/me', '#cfsme', '#dysautonomia', '#fibro', '#fibromyalgia', '#iacc', '#iaccs', '#longcovid', '#longcovidkids', '#lyme', '#mcas', '#me/cfs', '#mecfs', '#myalgice', '#myalgicencephalomyelitis', '#neisvoid', '#pots', '#pwlc', '#pwme', '#severeme', '#thereforme', '#verysevereme']
