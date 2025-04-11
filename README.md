@@ -2,9 +2,7 @@
 
 Python feeds for IACC community based on [https://github.com/MarshalX/bluesky-feed-generator](https://github.com/MarshalX/bluesky-feed-generator) with separate script for firehose handling.
 
-## Feed Details
-
-### IACC Following
+## IACC Following
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-following](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-following)
 
@@ -14,7 +12,7 @@ Python feeds for IACC community based on [https://github.com/MarshalX/bluesky-fe
 ['#cfs/me', '#cfsme', '#dysautonomia', '#fibro', '#fibromyalgia', '#iacc', '#iaccs', '#longcovid', '#longcovidkids', '#lyme', '#mcas', '#me/cfs', '#mecfs', '#myalgice', '#myalgicencephalomyelitis', '#neisvoid', '#pots', '#pwlc', '#pwme', '#severeme', '#thereforme', '#verysevereme', 'able-bodied', 'abled', 'autoimmune', 'brain fog', 'brainfog', 'cfs', 'cfs/me', 'cfsme', 'chiari', 'chronic fatigue', 'chronic illness', 'chronic pain', 'chronically ill', 'chronicillness', 'chronicpain', 'disability', 'disabled', 'disease', 'diseases', 'dysautonomia', 'eds', 'ehlers danlos', 'ehlers-danlos', 'endometriosis', 'energy limit', 'energy limiting', 'energy limits', 'energy-limiting', 'epstein barr', 'fibro', 'fibromyalgia', 'gastroparesis', 'hypermobile', 'hypermobility', 'iacc', 'iaccs', 'immune', 'immunocompromise', 'immunocompromised', 'infection associated', 'infection-associated', 'infection-associated chronic', 'inflammation', 'insomnia', 'joint pain', 'lc symptom', 'lc symptoms', 'long covid', 'longcovid', 'longcovidkids', 'lyme', 'mast cell', 'mcas', 'me symptom', 'me symptoms', 'me/cfs', 'mecfs', 'migraine', 'mild me', 'mild me/cfs', 'mild mecfs', 'moderate me', 'moderate me/cfs', 'moderate mecfs', 'muscle pain', 'myalgic encephalomyelitis', 'myalgice', 'myalgicencephalomyelitis', 'neisvoid', 'neurological', 'neuropathy', 'onset', 'pace trial', 'pacing', 'pem', 'post exertion', 'post exertional', 'post viral', 'post-exertional', 'post-viral illness', 'post-viral illnesses', 'pots', 'pwlc', 'pwme', 'severe me', 'severe me/cfs', 'severe mecfs', 'severeme', 'tethered cord', 'thereforme', 'verysevereme', 'viral illness']
 ```
 
-### IACC Discover
+## IACC Discover
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-discover](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-discover)
 
@@ -24,7 +22,7 @@ Python feeds for IACC community based on [https://github.com/MarshalX/bluesky-fe
 ['#cfs/me', '#cfsme', '#dysautonomia', '#fibro', '#fibromyalgia', '#iacc', '#iaccs', '#longcovid', '#longcovidkids', '#lyme', '#mcas', '#me/cfs', '#mecfs', '#myalgice', '#myalgicencephalomyelitis', '#neisvoid', '#pots', '#pwlc', '#pwme', '#severeme', '#thereforme', '#verysevereme']
 ````
 
-### IACC Links
+## IACC Links
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-links](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-links)
 
@@ -40,7 +38,7 @@ Python feeds for IACC community based on [https://github.com/MarshalX/bluesky-fe
 ['#cfs/me', '#cfsme', '#dysautonomia', '#fibro', '#fibromyalgia', '#iacc', '#iaccs', '#longcovid', '#longcovidkids', '#lyme', '#mcas', '#me/cfs', '#mecfs', '#myalgice', '#myalgicencephalomyelitis', '#neisvoid', '#pots', '#pwlc', '#pwme', '#severeme', '#thereforme', '#verysevereme']
 ````
 
-### IACC Mutual Aid
+## IACC Mutual Aid
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-ma](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-ma)
 
@@ -52,7 +50,7 @@ Python feeds for IACC community based on [https://github.com/MarshalX/bluesky-fe
 
 For your posts to appear on this feed, post or reply "@iaccsky-updates.bsky.social AddToMutualAid" without the quotes and you should get an automatic notification within a few minutes that you are added.
 
-### IACC United Kingdom
+## IACC United Kingdom
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-unitedkingdom](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-unitedkingdom)
 
@@ -64,7 +62,7 @@ For your posts to appear on this feed, post or reply "@iaccsky-updates.bsky.soci
 
 For your posts to appear on this feed, post or reply "@iaccsky-updates.bsky.social AddToUnitedKingdom" without the quotes and you should get an automatic notification within a few minutes that you are added.
 
-### IACC Secret Lists
+## IACC Secret Lists
 
 [https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-secret](https://bsky.app/profile/iaccsky-updates.bsky.social/feed/iacc-secret)
 
