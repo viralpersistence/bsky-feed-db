@@ -106,6 +106,7 @@ BIGRAMS = [
     'post viral', 
     'post-viral illness',
     'post-viral illnesses',
+    'recover tlc',
     'severe me', 
     'severe me/cfs', 
     'severe mecfs', 
